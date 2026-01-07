@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Typography, Layout, Menu, Table, Tag, Space, Card, Statistic, message, Dropdown, Button } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { CheckCircleOutlined, ClockCircleOutlined, DownOutlined } from '@ant-design/icons'
-import { ErrorCategory, ErrorStatus } from '../../enum'
+import { ErrorCategory, ErrorCategoryLabels, ErrorStatus, ErrorStatusLabels } from '../../enum'
 import { getErrorList, updateErrorStatus } from '../../api'
 import './index.css'
 
@@ -59,19 +59,19 @@ function Dashboard() {
   }
 
   const statusItems = [
-    { key: ErrorStatus.UNRESOLVED, label: '未解决' },
-    { key: ErrorStatus.RESOLVED, label: '已解决' },
-    { key: ErrorStatus.IN_PROGRESS, label: '处理中' },
+    { key: ErrorStatus.UNRESOLVED, label: ErrorStatusLabels[ErrorStatus.UNRESOLVED] },
+    { key: ErrorStatus.RESOLVED, label: ErrorStatusLabels[ErrorStatus.RESOLVED] },
+    { key: ErrorStatus.IN_PROGRESS, label: ErrorStatusLabels[ErrorStatus.IN_PROGRESS] },
   ]
 
   const getStatusTag = (status?: string) => {
     switch (status) {
       case ErrorStatus.RESOLVED:
-        return <Tag color="success">已解决</Tag>
+        return <Tag color="success">{ErrorStatusLabels[ErrorStatus.RESOLVED]}</Tag>
       case ErrorStatus.IN_PROGRESS:
-        return <Tag color="processing">处理中</Tag>
+        return <Tag color="processing">{ErrorStatusLabels[ErrorStatus.IN_PROGRESS]}</Tag>
       default:
-        return <Tag color="default">未解决</Tag>
+        return <Tag color="default">{ErrorStatusLabels[ErrorStatus.UNRESOLVED]}</Tag>
     }
   }
 
@@ -100,9 +100,15 @@ function Dashboard() {
       dataIndex: 'category',
       key: 'category',
       width: 120,
+      filters: [
+        { text: ErrorCategoryLabels[ErrorCategory.API_ERROR], value: ErrorCategory.API_ERROR },
+        { text: ErrorCategoryLabels[ErrorCategory.FRONTEND_ERROR], value: ErrorCategory.FRONTEND_ERROR },
+        { text: ErrorCategoryLabels[ErrorCategory.OTHER], value: ErrorCategory.OTHER },
+      ],
+      onFilter: (value: unknown, record: ErrorItem) => record.category === value,
       render: (category: string) => (
         <Tag color={category === ErrorCategory.API_ERROR ? 'orange' : category === ErrorCategory.FRONTEND_ERROR ? 'purple' : 'blue'}>
-          {category === ErrorCategory.FRONTEND_ERROR ? 'FRONTEND_ERROR' : category}
+          {ErrorCategoryLabels[category as ErrorCategory]}
         </Tag>
       ),
     },
