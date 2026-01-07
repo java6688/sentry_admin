@@ -10,8 +10,8 @@ export interface ErrorItem {
   status?: string
 }
 
-export const getErrorList = (): Promise<ErrorItem[]> => {
-  return request.get('/error/list')
+export const getErrorList = (status?: ErrorStatus): Promise<ErrorItem[]> => {
+  return request.get('/error/list', { params: { status } })
 }
 
 export const updateErrorStatus = (id: number, status: ErrorStatus): Promise<void> => {

@@ -1,33 +1,25 @@
 import { useState, useEffect } from 'react'
-import { Typography, Layout, Menu, Table, Tag, Space, Card, Statistic, message, Dropdown, Button } from 'antd'
+import { Typography, Layout, Menu, Table, Tag, Space, Card, Statistic, message, Dropdown, Button, Select } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { CheckCircleOutlined, ClockCircleOutlined, DownOutlined } from '@ant-design/icons'
 import { ErrorCategory, ErrorCategoryLabels, ErrorStatus, ErrorStatusLabels } from '../../enum'
-import { getErrorList, updateErrorStatus } from '../../api'
+import { getErrorList, updateErrorStatus, type ErrorItem } from '../../api'
 import './index.css'
 
 const { Header, Content, Footer } = Layout
 const { Title, Text } = Typography
-
-interface ErrorItem {
-  id: number
-  type: string
-  message: string
-  createdAt: string
-  category: string
-  status?: string
-}
 
 function Dashboard() {
   const navigate = useNavigate()
   const location = useLocation()
   const [errorData, setErrorData] = useState<ErrorItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [statusFilter, setStatusFilter] = useState<ErrorStatus | undefined>(undefined)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getErrorList()
+        const data = await getErrorList(statusFilter)
         setErrorData(data)
       } catch {
         message.error('获取错误列表失败')
@@ -36,7 +28,7 @@ function Dashboard() {
       }
     }
     fetchData()
-  }, [])
+  }, [statusFilter])
 
   const getSelectedKey = () => {
     if (location.pathname === '/dashboard') return '2'
@@ -202,6 +194,20 @@ function Dashboard() {
         </div>
 
         <Card title="错误日志" className="dashboard-card">
+          <Space style={{ marginBottom: 16 }}>
+            <Select
+              placeholder="选择状态筛选"
+              allowClear
+              style={{ width: 150 }}
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={[
+                { value: ErrorStatus.UNRESOLVED, label: ErrorStatusLabels[ErrorStatus.UNRESOLVED] },
+                { value: ErrorStatus.RESOLVED, label: ErrorStatusLabels[ErrorStatus.RESOLVED] },
+                { value: ErrorStatus.IN_PROGRESS, label: ErrorStatusLabels[ErrorStatus.IN_PROGRESS] },
+              ]}
+            />
+          </Space>
           <Table
             dataSource={errorData}
             columns={columns}
