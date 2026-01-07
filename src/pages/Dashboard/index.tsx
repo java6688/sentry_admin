@@ -1,39 +1,42 @@
-import { Typography, Layout, Menu, Table, Tag, Space, Card, Statistic } from 'antd'
+import { useState, useEffect } from 'react'
+import { Typography, Layout, Menu, Table, Tag, Space, Card, Statistic, message, Dropdown, Button } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons'
-import { ErrorCategory } from '../../enum'
+import { CheckCircleOutlined, ClockCircleOutlined, DownOutlined } from '@ant-design/icons'
+import { ErrorCategory, ErrorStatus } from '../../enum'
+import { getErrorList, updateErrorStatus } from '../../api'
 import './index.css'
 
 const { Header, Content, Footer } = Layout
 const { Title, Text } = Typography
 
-const errorData = [
-  {
-    id: 7,
-    type: 'TypeError',
-    message: "Cannot read properties of null (reading 'nonexistent')",
-    createdAt: '2026-01-07T09:24:19.324Z',
-    category: ErrorCategory.API_ERROR,
-  },
-  {
-    id: 6,
-    type: 'TypeError',
-    message: "window.nonExistentFunction is not a function",
-    createdAt: '2026-01-07T09:23:34.576Z',
-    category: ErrorCategory.OTHER,
-  },
-  {
-    id: 5,
-    type: 'TypeError',
-    message: "Cannot read properties of null (reading 'nonexistent')",
-    createdAt: '2026-01-07T09:21:33.985Z',
-    category: ErrorCategory.FRONTEND_ERROR,
-  },
-]
+interface ErrorItem {
+  id: number
+  type: string
+  message: string
+  createdAt: string
+  category: string
+  status?: string
+}
 
 function Dashboard() {
   const navigate = useNavigate()
   const location = useLocation()
+  const [errorData, setErrorData] = useState<ErrorItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getErrorList()
+        setErrorData(data)
+      } catch {
+        message.error('获取错误列表失败')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
 
   const getSelectedKey = () => {
     if (location.pathname === '/dashboard') return '2'
@@ -43,6 +46,33 @@ function Dashboard() {
   const handleMenuClick = (key: string) => {
     if (key === '1') navigate('/home')
     if (key === '2') navigate('/dashboard')
+  }
+
+  const handleStatusChange = async (id: number, status: ErrorStatus) => {
+    await updateErrorStatus(id, status)
+      setErrorData(prev =>
+        prev.map(item =>
+          item.id === id ? { ...item, status } : item
+        )
+      )
+      message.success('状态更新成功')
+  }
+
+  const statusItems = [
+    { key: ErrorStatus.UNRESOLVED, label: '未解决' },
+    { key: ErrorStatus.RESOLVED, label: '已解决' },
+    { key: ErrorStatus.IN_PROGRESS, label: '处理中' },
+  ]
+
+  const getStatusTag = (status?: string) => {
+    switch (status) {
+      case ErrorStatus.RESOLVED:
+        return <Tag color="success">已解决</Tag>
+      case ErrorStatus.IN_PROGRESS:
+        return <Tag color="processing">处理中</Tag>
+      default:
+        return <Tag color="default">未解决</Tag>
+    }
   }
 
   const columns = [
@@ -77,6 +107,13 @@ function Dashboard() {
       ),
     },
     {
+      title: '状态',
+      dataIndex: 'status',
+      key: 'status',
+      width: 120,
+      render: (status: string) => getStatusTag(status),
+    },
+    {
       title: '时间',
       dataIndex: 'createdAt',
       key: 'createdAt',
@@ -86,6 +123,24 @@ function Dashboard() {
           <ClockCircleOutlined />
           <Text type="secondary">{time}</Text>
         </Space>
+      ),
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 150,
+      render: (_: unknown, record: ErrorItem) => (
+        <Dropdown
+          menu={{
+            items: statusItems,
+            onClick: ({ key }) => handleStatusChange(record.id, key as ErrorStatus),
+          }}
+          trigger={['click']}
+        >
+          <Button size="small">
+            修改状态 <DownOutlined />
+          </Button>
+        </Dropdown>
       ),
     },
   ]
@@ -111,7 +166,7 @@ function Dashboard() {
               title="总错误数"
               value={errorData.length}
               prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#667eea' }}
+              styles={{ content: { color: '#667eea' } }}
             />
           </Card>
           <Card className="dashboard-stat-card">
@@ -119,7 +174,7 @@ function Dashboard() {
               title="API 错误"
               value={errorData.filter((item) => item.category === ErrorCategory.API_ERROR).length}
               prefix={<Tag color="orange">API</Tag>}
-              valueStyle={{ color: '#f5576c' }}
+              styles={{ content: { color: '#f5576c' } }}
             />
           </Card>
           <Card className="dashboard-stat-card">
@@ -127,7 +182,7 @@ function Dashboard() {
               title="前端错误"
               value={errorData.filter((item) => item.category === ErrorCategory.FRONTEND_ERROR).length}
               prefix={<Tag color="purple">FE</Tag>}
-              valueStyle={{ color: '#722ed1' }}
+              styles={{ content: { color: '#722ed1' } }}
             />
           </Card>
           <Card className="dashboard-stat-card">
@@ -135,7 +190,7 @@ function Dashboard() {
               title="其他错误"
               value={errorData.filter((item) => item.category === ErrorCategory.OTHER).length}
               prefix={<Tag color="blue">OTHER</Tag>}
-              valueStyle={{ color: '#52c41a' }}
+              styles={{ content: { color: '#52c41a' } }}
             />
           </Card>
         </div>
@@ -146,6 +201,7 @@ function Dashboard() {
             columns={columns}
             rowKey="id"
             pagination={false}
+            loading={loading}
           />
         </Card>
       </Content>
