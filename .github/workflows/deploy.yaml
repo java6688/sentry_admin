@@ -1,0 +1,62 @@
+name: cd自动化部署到ftp服务器
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        # 减少检出深度，只获取最新提交
+        fetch-depth: 1
+
+    - name: Setup Node.js with cache
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.19.0'
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 10.19.0  # 与 package.json 中指定的版本保持一致
+
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          node_modules
+          .next
+          .nuxt
+          .output
+        key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile  # 使用 pnpm install 进行依赖安装
+
+    - name: Build project
+      run: pnpm run build  # 使用 pnpm 运行构建脚本
+
+    - name: Validate SFTP variables and secret
+      run: |
+        if [ -z "${{ vars.SFTP_HOST }}" ]; then echo "::error::SFTP_HOST variable not set"; exit 1; fi
+        if [ -z "${{ vars.SFTP_USERNAME }}" ]; then echo "::error::SFTP_USERNAME variable not set"; exit 1; fi
+        if [ -z "${{ secrets.SFTP_PASSWORD }}" ]; then echo "::error::SFTP_PASSWORD secret not set"; exit 1; fi
+        if [ -z "${{ vars.SFTP_PORT }}" ]; then echo "::error::SFTP_PORT variable not set"; exit 1; fi
+        if [ -z "${{ vars.TARGET_DIR }}" ]; then echo "::error::TARGET_DIR variable not set"; exit 1; fi
+        TARGET_DIR="${{ vars.TARGET_DIR }}"
+        case "$TARGET_DIR" in */) ;; *) TARGET_DIR="$TARGET_DIR/";; esac
+        echo "TARGET_DIR=$TARGET_DIR" >> $GITHUB_ENV
+    - name: Install lftp
+      run: sudo apt-get update && sudo apt-get install -y lftp
+    - name: Upload xyzw (SFTP mirror, skip existing)
+      run: |
+        lftp -u "${{ vars.SFTP_USERNAME }}","${{ secrets.SFTP_PASSWORD }}" -p ${{ vars.SFTP_PORT }} sftp://${{ vars.SFTP_HOST }} -e "set sftp:auto-confirm yes; set net:timeout 30; set net:max-retries 2; mkdir -p $TARGET_DIR; mirror -R -n dist/ $TARGET_DIR; bye"
+      env:
+        TARGET_DIR: ${{ env.TARGET_DIR }}
