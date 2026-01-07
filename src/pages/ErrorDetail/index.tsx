@@ -75,7 +75,9 @@ function ErrorDetail() {
         </Header>
         <Content className="error-detail-content">
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
-            <Spin size="large" tip="加载中..." />
+            <Spin size="large">
+              <div style={{ padding: 50, textAlign: 'center' }}>加载中...</div>
+            </Spin>
           </div>
         </Content>
         <Footer className="error-detail-footer">
@@ -133,15 +135,11 @@ function ErrorDetail() {
         />
       </Header>
       <Content className="error-detail-content">
-        <Breadcrumb style={{ marginBottom: 16 }}>
-          <Breadcrumb.Item>
-            <a onClick={() => navigate('/home')}>首页</a>
-          </Breadcrumb.Item>
-          <Breadcrumb.Item>
-            <a onClick={() => navigate('/dashboard')}>信息面板</a>
-          </Breadcrumb.Item>
-          <Breadcrumb.Item>错误详情</Breadcrumb.Item>
-        </Breadcrumb>
+        <Breadcrumb style={{ marginBottom: 16 }} items={[
+          { title: <a onClick={() => navigate('/home')}>首页</a> },
+          { title: <a onClick={() => navigate('/dashboard')}>信息面板</a> },
+          { title: '错误详情' },
+        ]} />
 
         <Card className="error-detail-card">
           <div style={{ marginBottom: 16 }}>
