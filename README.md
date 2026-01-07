@@ -12,6 +12,12 @@ sys_sentry 是一个前端错误信息收集的后台管理系统。
 4.prisma ORM 进行数据库操作。
 5.sentry_admin ：前端管理后台（React + TypeScript + Vite）
 
+## 部署应用
+
+pm2 start ecosystem.config.js --env production
+pm2 startup
+pm2 save
+
 ## React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
