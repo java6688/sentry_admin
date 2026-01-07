@@ -1,6 +1,7 @@
 import { Typography, Layout, Menu, Table, Tag, Space, Card, Statistic } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons'
+import { ErrorCategory } from '../../enum'
 import './index.css'
 
 const { Header, Content, Footer } = Layout
@@ -12,21 +13,21 @@ const errorData = [
     type: 'TypeError',
     message: "Cannot read properties of null (reading 'nonexistent')",
     createdAt: '2026-01-07T09:24:19.324Z',
-    category: 'API_ERROR',
+    category: ErrorCategory.API_ERROR,
   },
   {
     id: 6,
     type: 'TypeError',
     message: "window.nonExistentFunction is not a function",
     createdAt: '2026-01-07T09:23:34.576Z',
-    category: 'OTHER',
+    category: ErrorCategory.OTHER,
   },
   {
     id: 5,
     type: 'TypeError',
     message: "Cannot read properties of null (reading 'nonexistent')",
     createdAt: '2026-01-07T09:21:33.985Z',
-    category: 'OTHER',
+    category: ErrorCategory.FRONTEND_ERROR,
   },
 ]
 
@@ -70,8 +71,8 @@ function Dashboard() {
       key: 'category',
       width: 120,
       render: (category: string) => (
-        <Tag color={category === 'API_ERROR' ? 'orange' : 'blue'}>
-          {category}
+        <Tag color={category === ErrorCategory.API_ERROR ? 'orange' : category === ErrorCategory.FRONTEND_ERROR ? 'purple' : 'blue'}>
+          {category === ErrorCategory.FRONTEND_ERROR ? 'FRONTEND_ERROR' : category}
         </Tag>
       ),
     },
@@ -116,24 +117,25 @@ function Dashboard() {
           <Card className="dashboard-stat-card">
             <Statistic
               title="API 错误"
-              value={errorData.filter((item) => item.category === 'API_ERROR').length}
+              value={errorData.filter((item) => item.category === ErrorCategory.API_ERROR).length}
               prefix={<Tag color="orange">API</Tag>}
               valueStyle={{ color: '#f5576c' }}
             />
           </Card>
           <Card className="dashboard-stat-card">
             <Statistic
-              title="其他错误"
-              value={errorData.filter((item) => item.category === 'OTHER').length}
-              prefix={<Tag color="blue">OTHER</Tag>}
-              valueStyle={{ color: '#52c41a' }}
+              title="前端错误"
+              value={errorData.filter((item) => item.category === ErrorCategory.FRONTEND_ERROR).length}
+              prefix={<Tag color="purple">FE</Tag>}
+              valueStyle={{ color: '#722ed1' }}
             />
           </Card>
           <Card className="dashboard-stat-card">
             <Statistic
-              title="今日告警"
-              value={3}
-              valueStyle={{ color: '#faad14' }}
+              title="其他错误"
+              value={errorData.filter((item) => item.category === ErrorCategory.OTHER).length}
+              prefix={<Tag color="blue">OTHER</Tag>}
+              valueStyle={{ color: '#52c41a' }}
             />
           </Card>
         </div>
