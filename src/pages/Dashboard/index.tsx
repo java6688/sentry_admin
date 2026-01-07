@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Typography, Layout, Menu, Table, Tag, Space, Card, Statistic, message, Dropdown, Button, Select } from 'antd'
+import { Typography, Layout, Menu, Table, Tag, Space, Card, Statistic, message, Dropdown, Button, Select, DatePicker } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { CheckCircleOutlined, ClockCircleOutlined, DownOutlined } from '@ant-design/icons'
+import dayjs from 'dayjs'
 import { ErrorCategory, ErrorCategoryLabels, ErrorStatus, ErrorStatusLabels } from '../../enum'
 import { getErrorList, updateErrorStatus, type ErrorItem } from '../../api'
 import './index.css'
@@ -15,11 +16,13 @@ function Dashboard() {
   const [errorData, setErrorData] = useState<ErrorItem[]>([])
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<ErrorStatus | undefined>(undefined)
+  const [dateFilter, setDateFilter] = useState<dayjs.Dayjs | null>(null)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getErrorList(statusFilter)
+        const createdAt = dateFilter ? dateFilter.format('YYYY-MM-DD') : undefined
+        const data = await getErrorList(statusFilter, createdAt)
         setErrorData(data)
       } catch {
         message.error('获取错误列表失败')
@@ -28,7 +31,7 @@ function Dashboard() {
       }
     }
     fetchData()
-  }, [statusFilter])
+  }, [statusFilter, dateFilter])
 
   const getSelectedKey = () => {
     if (location.pathname === '/dashboard') return '2'
@@ -119,7 +122,7 @@ function Dashboard() {
       render: (time: string) => (
         <Space>
           <ClockCircleOutlined />
-          <Text type="secondary">{time}</Text>
+          <Text type="secondary">{dayjs(time).format('YYYY-MM-DD HH:mm:ss')}</Text>
         </Space>
       ),
     },
@@ -215,6 +218,13 @@ function Dashboard() {
                 { value: ErrorStatus.RESOLVED, label: ErrorStatusLabels[ErrorStatus.RESOLVED] },
                 { value: ErrorStatus.IN_PROGRESS, label: ErrorStatusLabels[ErrorStatus.IN_PROGRESS] },
               ]}
+            />
+            <DatePicker
+              placeholder="选择日期筛选"
+              allowClear
+              style={{ width: 150 }}
+              value={dateFilter}
+              onChange={setDateFilter}
             />
           </Space>
           <Table

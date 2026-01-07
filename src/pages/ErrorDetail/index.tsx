@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { Typography, Layout, Menu, Card, Descriptions, Tag, Space, Button, Spin, message, Breadcrumb } from 'antd'
 import { ArrowLeftOutlined, ClockCircleOutlined } from '@ant-design/icons'
+import dayjs from 'dayjs'
 import { ErrorCategory, ErrorCategoryLabels, ErrorStatus, ErrorStatusLabels } from '../../enum'
 import { getErrorDetail, type ErrorItem } from '../../api'
 import './index.css'
@@ -169,7 +170,7 @@ function ErrorDetail() {
             <Descriptions.Item label="发生时间" span={2}>
               <Space>
                 <ClockCircleOutlined />
-                <Text type="secondary">{errorDetail.createdAt}</Text>
+                <Text type="secondary">{dayjs(errorDetail.createdAt).format('YYYY-MM-DD HH:mm:ss')}</Text>
               </Space>
             </Descriptions.Item>
             <Descriptions.Item label="错误消息" span={2}>
