@@ -12,7 +12,7 @@ function Login() {
     setTimeout(() => {
       if (values.username === 'admin' && values.password === '123456') {
         message.success('登录成功')
-        navigate('/home')
+        navigate('/dashboard')
       } else {
         message.error('用户名或密码错误')
       }

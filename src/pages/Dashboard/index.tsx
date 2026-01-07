@@ -126,19 +126,28 @@ function Dashboard() {
     {
       title: '操作',
       key: 'action',
-      width: 150,
+      width: 200,
       render: (_: unknown, record: ErrorItem) => (
-        <Dropdown
-          menu={{
-            items: statusItems,
-            onClick: ({ key }) => handleStatusChange(record.id, key as ErrorStatus),
-          }}
-          trigger={['click']}
-        >
-          <Button size="small">
-            修改状态 <DownOutlined />
+        <Space>
+          <Button
+            size="small"
+            type="link"
+            onClick={() => navigate(`/error/${record.id}`)}
+          >
+            查看详情
           </Button>
-        </Dropdown>
+          <Dropdown
+            menu={{
+              items: statusItems,
+              onClick: ({ key }) => handleStatusChange(record.id, key as ErrorStatus),
+            }}
+            trigger={['click']}
+          >
+            <Button size="small">
+              修改状态 <DownOutlined />
+            </Button>
+          </Dropdown>
+        </Space>
       ),
     },
   ]
