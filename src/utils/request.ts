@@ -2,7 +2,7 @@ import axios from 'axios'
 import { message } from 'antd'
 
 const request = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -31,6 +31,7 @@ request.interceptors.response.use(
     return Promise.reject(new Error(data.message || '请求失败'))
   },
   (error) => {
+    console.error(error)
     if(error.response.data.message) {
       message.error(error.response.data.message)
     }
@@ -42,21 +43,21 @@ request.interceptors.response.use(
           window.location.href = '/login'
           break
         case 403:
-          console.error('没有权限访问')
+          message.error('没有权限访问')
           break
         case 404:
-          console.error('请求的资源不存在')
+          message.error('请求的资源不存在')
           break
         case 500:
-          console.error('服务器错误')
+          message.error('服务器错误')
           break
         default:
-          console.error(data.message || '请求失败')
+          message.error(data.message || '请求失败')
       }
     } else if (error.request) {
-      console.error('网络请求失败，请检查网络连接')
+      message.error('网络请求失败，请检查网络连接')
     } else {
-      console.error('请求配置错误')
+      message.error('请求配置错误')
     }
     return Promise.reject(error)
   }
