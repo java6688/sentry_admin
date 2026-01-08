@@ -3,7 +3,7 @@ import { Typography, Layout, Menu, Table, Tag, Space, Card, Statistic, message, 
 import { useNavigate, useLocation } from 'react-router-dom'
 import { CheckCircleOutlined, ClockCircleOutlined, DownOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
-import { ErrorCategory, ErrorCategoryLabels, ErrorStatus, ErrorStatusLabels, Project, ProjectLabels } from '../../enum'
+import { ErrorCategory, ErrorCategoryLabels, ErrorStatus, ErrorStatusLabels, Project, ProjectLabels, Environment, EnvironmentLabels } from '../../enum'
 import { getErrorList, updateErrorStatus, type ErrorItem } from '../../api'
 import './index.css'
 
@@ -18,12 +18,13 @@ function Dashboard() {
   const [statusFilter, setStatusFilter] = useState<ErrorStatus | undefined>(undefined)
   const [dateFilter, setDateFilter] = useState<dayjs.Dayjs | null>(null)
   const [selectedProject, setSelectedProject] = useState<Project>(Project.TEST)
+  const [environmentFilter, setEnvironmentFilter] = useState<Environment | undefined>(undefined)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const createdAt = dateFilter ? dateFilter.format('YYYY-MM-DD') : undefined
-        const data = await getErrorList(statusFilter, createdAt, selectedProject)
+        const data = await getErrorList(statusFilter, createdAt, selectedProject, environmentFilter)
         setErrorData(data)
       } catch {
         message.error('获取错误列表失败')
@@ -32,7 +33,7 @@ function Dashboard() {
       }
     }
     fetchData()
-  }, [statusFilter, dateFilter, selectedProject])
+  }, [statusFilter, dateFilter, selectedProject, environmentFilter])
 
   const getSelectedKey = () => {
     if (location.pathname === '/dashboard') return '2'
@@ -250,6 +251,18 @@ function Dashboard() {
               style={{ width: 150 }}
               value={dateFilter}
               onChange={setDateFilter}
+            />
+            <Select
+              placeholder="选择环境筛选"
+              allowClear
+              style={{ width: 150 }}
+              value={environmentFilter}
+              onChange={setEnvironmentFilter}
+              options={[
+                { value: Environment.PRODUCTION, label: EnvironmentLabels[Environment.PRODUCTION] },
+                { value: Environment.DEVELOPMENT, label: EnvironmentLabels[Environment.DEVELOPMENT] },
+                { value: Environment.TEST, label: EnvironmentLabels[Environment.TEST] },
+              ]}
             />
           </Space>
           <Tabs

@@ -1,5 +1,5 @@
 import request from '../utils/request'
-import { ErrorStatus, Project } from '../enum'
+import { ErrorStatus, Project, Environment } from '../enum'
 
 export interface ErrorItem {
   id: number
@@ -10,8 +10,8 @@ export interface ErrorItem {
   status?: string
 }
 
-export const getErrorList = (status?: ErrorStatus, createdAt?: string, project?: Project): Promise<ErrorItem[]> => {
-  return request.get('/error/list', { params: { status, createdAt, project } })
+export const getErrorList = (status?: ErrorStatus, createdAt?: string, project?: Project, environment?: Environment): Promise<ErrorItem[]> => {
+  return request.get('/error/list', { params: { status, createdAt, project, environment } })
 }
 
 export const updateErrorStatus = (id: number, status: ErrorStatus): Promise<void> => {

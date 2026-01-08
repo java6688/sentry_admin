@@ -33,3 +33,14 @@ export const ProjectLabels: Record<Project, string> = {
   [Project.TENANT]: '租户系统',
   [Project.DEVICE]: '设备系统'
 }
+
+export enum Environment {
+  PRODUCTION = "PRODUCTION",
+  DEVELOPMENT = "DEVELOPMENT",
+  TEST = "TEST"
+}
+export const EnvironmentLabels: Record<Environment, string> = {
+  [Environment.PRODUCTION]: '生产环境',
+  [Environment.DEVELOPMENT]: '开发环境',
+  [Environment.TEST]: '测试环境',
+}
