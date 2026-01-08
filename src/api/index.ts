@@ -1,13 +1,20 @@
 import request from '../utils/request'
-import { ErrorStatus, Project, Environment } from '../enum'
+import { ErrorStatus, Project, Environment, ErrorCategory } from '../enum'
 
 export interface ErrorItem {
   id: number
   type: string
   message: string
   createdAt: string
-  category: string
-  status?: string
+  category: ErrorCategory
+  status: ErrorStatus
+  project: Project
+  environment: Environment
+  url?: string
+  method?: string
+  statusCode?: number
+  payload?: string
+  responseData?: string
 }
 
 export const getErrorList = (status?: ErrorStatus, createdAt?: string, project?: Project, environment?: Environment): Promise<ErrorItem[]> => {

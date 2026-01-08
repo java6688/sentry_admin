@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { Typography, Layout, Menu, Card, Descriptions, Tag, Space, Button, Spin, message, Breadcrumb } from 'antd'
 import { ArrowLeftOutlined, ClockCircleOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
-import { ErrorCategory, ErrorCategoryLabels, ErrorStatus, ErrorStatusLabels } from '../../enum'
+import { ErrorCategory, ErrorCategoryLabels, ErrorStatus, ErrorStatusLabels, ProjectLabels, EnvironmentLabels } from '../../enum'
 import { getErrorDetail, type ErrorItem } from '../../api'
 import './index.css'
 
@@ -165,11 +165,50 @@ function ErrorDetail() {
             <Descriptions.Item label="错误状态">
               {getStatusTag(errorDetail.status)}
             </Descriptions.Item>
+            <Descriptions.Item label="所属项目">
+              <Tag color="blue">{ProjectLabels[errorDetail.project]}</Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="运行环境">
+              <Tag color="green">{EnvironmentLabels[errorDetail.environment]}</Tag>
+            </Descriptions.Item>
             <Descriptions.Item label="发生时间" span={2}>
               <Space>
                 <ClockCircleOutlined />
                 <Text type="secondary">{dayjs(errorDetail.createdAt).format('YYYY-MM-DD HH:mm:ss')}</Text>
               </Space>
+            </Descriptions.Item>
+            <Descriptions.Item label="请求URL">{errorDetail.url || 'N/A'}</Descriptions.Item>
+            <Descriptions.Item label="请求方法">
+              {errorDetail.method ? <Tag color="orange">{errorDetail.method}</Tag> : 'N/A'}
+            </Descriptions.Item>
+            <Descriptions.Item label="响应状态码">{errorDetail.statusCode || 'N/A'}</Descriptions.Item>
+            <Descriptions.Item label="请求负载" span={2}>
+              <div style={{
+                padding: '12px',
+                background: '#f5f5f5',
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '13px',
+                wordBreak: 'break-all',
+                maxHeight: '200px',
+                overflow: 'auto'
+              }}>
+                {errorDetail.payload || 'N/A'}
+              </div>
+            </Descriptions.Item>
+            <Descriptions.Item label="响应数据" span={2}>
+              <div style={{
+                padding: '12px',
+                background: '#f5f5f5',
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '13px',
+                wordBreak: 'break-all',
+                maxHeight: '200px',
+                overflow: 'auto'
+              }}>
+                {errorDetail.responseData || 'N/A'}
+              </div>
             </Descriptions.Item>
             <Descriptions.Item label="错误消息" span={2}>
               <div style={{
