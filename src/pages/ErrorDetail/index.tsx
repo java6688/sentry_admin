@@ -10,6 +10,28 @@ import './index.css'
 const { Header, Content, Footer } = Layout
 const { Title, Text } = Typography
 
+// 安全渲染函数，确保只渲染字符串类型的数据
+const safeRender = (data: unknown): string => {
+  if (data === null || data === undefined) {
+    return 'N/A';
+  }
+  try {
+    if (typeof data === 'string') {
+      return data;
+    } else if (typeof data === 'object') {
+      // 尝试解析可能已经是字符串的JSON
+      const jsonString = JSON.stringify(data, null, 2);
+      return jsonString;
+    } else {
+      // 其他类型（数字、布尔等）直接转换为字符串
+      return String(data);
+    }
+  } catch (e) {
+    console.error('数据渲染失败:', e);
+    return '数据格式错误，无法解析';
+  }
+}
+
 function ErrorDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -181,7 +203,7 @@ function ErrorDetail() {
             <Descriptions.Item label="请求方法">
               {errorDetail.method ? <Tag color="orange">{errorDetail.method}</Tag> : 'N/A'}
             </Descriptions.Item>
-            <Descriptions.Item label="响应状态码">{errorDetail.statusCode || 'N/A'}</Descriptions.Item>
+            <Descriptions.Item label="响应状态码" span={2}>{errorDetail.statusCode || 'N/A'}</Descriptions.Item>
             <Descriptions.Item label="请求负载" span={2}>
               <div style={{
                 padding: '12px',
@@ -193,7 +215,7 @@ function ErrorDetail() {
                 maxHeight: '200px',
                 overflow: 'auto'
               }}>
-                {errorDetail.payload || 'N/A'}
+                {safeRender(errorDetail.payload)}
               </div>
             </Descriptions.Item>
             <Descriptions.Item label="响应数据" span={2}>
@@ -207,7 +229,7 @@ function ErrorDetail() {
                 maxHeight: '200px',
                 overflow: 'auto'
               }}>
-                {errorDetail.responseData || 'N/A'}
+                {safeRender(errorDetail.responseData)}
               </div>
             </Descriptions.Item>
             <Descriptions.Item label="错误消息" span={2}>
