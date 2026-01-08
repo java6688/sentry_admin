@@ -35,9 +35,9 @@ export const ProjectLabels: Record<Project, string> = {
 }
 
 export enum Environment {
-  PRODUCTION = "PRODUCTION",
-  DEVELOPMENT = "DEVELOPMENT",
-  TEST = "TEST"
+  PRODUCTION = "production",
+  DEVELOPMENT = "development",
+  TEST = "test"
 }
 export const EnvironmentLabels: Record<Environment, string> = {
   [Environment.PRODUCTION]: '生产环境',
