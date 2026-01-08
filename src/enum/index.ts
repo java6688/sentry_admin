@@ -21,3 +21,15 @@ export const ErrorStatusLabels: Record<ErrorStatus, string> = {
   [ErrorStatus.RESOLVED]: '已解决',
   [ErrorStatus.IN_PROGRESS]: '处理中',
 }
+
+export enum Project {
+  TEST = "TEST",
+  TENANT = "TENANT",
+  DEVICE = "DEVICE"
+}
+
+export const ProjectLabels: Record<Project, string> = {
+  [Project.TEST]: '测试系统',
+  [Project.TENANT]: '租户系统',
+  [Project.DEVICE]: '设备系统'
+}

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Typography, Layout, Menu, Table, Tag, Space, Card, Statistic, message, Dropdown, Button, Select, DatePicker } from 'antd'
+import { Typography, Layout, Menu, Table, Tag, Space, Card, Statistic, message, Dropdown, Button, Select, DatePicker, Tabs } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { CheckCircleOutlined, ClockCircleOutlined, DownOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
-import { ErrorCategory, ErrorCategoryLabels, ErrorStatus, ErrorStatusLabels } from '../../enum'
+import { ErrorCategory, ErrorCategoryLabels, ErrorStatus, ErrorStatusLabels, Project, ProjectLabels } from '../../enum'
 import { getErrorList, updateErrorStatus, type ErrorItem } from '../../api'
 import './index.css'
 
@@ -17,12 +17,13 @@ function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<ErrorStatus | undefined>(undefined)
   const [dateFilter, setDateFilter] = useState<dayjs.Dayjs | null>(null)
+  const [selectedProject, setSelectedProject] = useState<Project>(Project.TEST)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const createdAt = dateFilter ? dateFilter.format('YYYY-MM-DD') : undefined
-        const data = await getErrorList(statusFilter, createdAt)
+        const data = await getErrorList(statusFilter, createdAt, selectedProject)
         setErrorData(data)
       } catch {
         message.error('获取错误列表失败')
@@ -31,7 +32,7 @@ function Dashboard() {
       }
     }
     fetchData()
-  }, [statusFilter, dateFilter])
+  }, [statusFilter, dateFilter, selectedProject])
 
   const getSelectedKey = () => {
     if (location.pathname === '/dashboard') return '2'
@@ -203,6 +204,30 @@ function Dashboard() {
               styles={{ content: { color: '#52c41a' } }}
             />
           </Card>
+          <Card className="dashboard-stat-card">
+            <Statistic
+              title={ErrorStatusLabels[ErrorStatus.UNRESOLVED]}
+              value={errorData.filter((item) => item.status === ErrorStatus.UNRESOLVED).length}
+              prefix={<Tag color="default">UNRESOLVED</Tag>}
+              styles={{ content: { color: '#faad14' } }}
+            />
+          </Card>
+          <Card className="dashboard-stat-card">
+            <Statistic
+              title={ErrorStatusLabels[ErrorStatus.RESOLVED]}
+              value={errorData.filter((item) => item.status === ErrorStatus.RESOLVED).length}
+              prefix={<Tag color="success">RESOLVED</Tag>}
+              styles={{ content: { color: '#52c41a' } }}
+            />
+          </Card>
+          <Card className="dashboard-stat-card">
+            <Statistic
+              title={ErrorStatusLabels[ErrorStatus.IN_PROGRESS]}
+              value={errorData.filter((item) => item.status === ErrorStatus.IN_PROGRESS).length}
+              prefix={<Tag color="processing">IN_PROGRESS</Tag>}
+              styles={{ content: { color: '#1890ff' } }}
+            />
+          </Card>
         </div>
 
         <Card title="错误日志" className="dashboard-card">
@@ -227,6 +252,16 @@ function Dashboard() {
               onChange={setDateFilter}
             />
           </Space>
+          <Tabs
+            activeKey={selectedProject}
+            onChange={(key) => setSelectedProject(key as Project)}
+            style={{ marginBottom: 16 }}
+            items={[
+              { key: Project.TEST, label: ProjectLabels[Project.TEST] },
+              { key: Project.TENANT, label: ProjectLabels[Project.TENANT] },
+              { key: Project.DEVICE, label: ProjectLabels[Project.DEVICE] },
+            ]}
+          />
           <Table
             dataSource={errorData}
             columns={columns}
