@@ -53,6 +53,6 @@ export const updateErrorStatus = (id: number, status: ErrorStatus): Promise<void
   return request.patch(`/error/${id}/status`, { status })
 }
 
-export const getErrorDetail = (id: number): Promise<ErrorItem> => {
+export const getErrorDetail = (id: number): Promise<{ success: boolean; data: ErrorItem }> => {
   return request.get(`/error/${id}`)
 }

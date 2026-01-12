@@ -79,11 +79,9 @@ function ErrorDetail() {
     const fetchDetail = async () => {
       if (!id) return
       try {
-        const data = await getErrorDetail(Number(id))
-        setErrorDetail(data)
-        setSelectedStatus(data.status)
-      } catch {
-        message.error('获取错误详情失败')
+        const res = await getErrorDetail(Number(id))
+        setErrorDetail(res.data)
+        setSelectedStatus(res.data.status)
       } finally {
         setLoading(false)
       }
