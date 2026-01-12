@@ -1,4 +1,4 @@
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // 用户信息类型
