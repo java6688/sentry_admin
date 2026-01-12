@@ -51,6 +51,9 @@ function Dashboard() {
   const [environmentFilter, setEnvironmentFilter] = useState<
     Environment | undefined
   >(undefined);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,21 +61,23 @@ function Dashboard() {
         const createdAt = dateFilter
           ? dateFilter.format("YYYY-MM-DD")
           : undefined;
-        const data = await getErrorList(
-          statusFilter,
+        const response = await getErrorList({
+          status: statusFilter,
           createdAt,
-          selectedProject,
-          environmentFilter
-        );
-        setErrorData(data);
-      } catch {
-        message.error("获取错误列表失败");
+          project: selectedProject,
+          environment: environmentFilter,
+          page,
+          pageSize
+        });
+        console.log('response', response)
+        setErrorData(response.data.list);
+        setTotalCount(response.data.pagination.total);
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [statusFilter, dateFilter, selectedProject, environmentFilter]);
+  }, [statusFilter, dateFilter, selectedProject, environmentFilter, page, pageSize]);
 
   const getSelectedKey = () => {
     if (location.pathname === "/dashboard") return "2";
@@ -397,7 +402,19 @@ function Dashboard() {
             dataSource={errorData}
             columns={columns}
             rowKey="id"
-            pagination={false}
+            pagination={{
+              current: page,
+              pageSize: pageSize,
+              total: totalCount,
+              onChange: (current, size) => {
+                setPage(current);
+                setPageSize(size);
+              },
+              showSizeChanger: true,
+              pageSizeOptions: ['10', '20', '50', '100'],
+              showTotal: (total) => `共 ${total} 条记录`,
+              defaultPageSize: 10
+            }}
             loading={loading}
           />
         </Card>

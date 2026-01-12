@@ -26,7 +26,7 @@ request.interceptors.response.use(
   (response) => {
     const { data } = response
     if (data.success) {
-      return data.data
+      return data
     }
     return Promise.reject(new Error(data.message || '请求失败'))
   },

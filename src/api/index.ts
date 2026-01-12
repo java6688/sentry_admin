@@ -17,8 +17,36 @@ export interface ErrorItem {
   responseData?: string
 }
 
-export const getErrorList = (status?: ErrorStatus, createdAt?: string, project?: Project, environment?: Environment): Promise<ErrorItem[]> => {
-  return request.get('/error/list', { params: { status, createdAt, project, environment } })
+export interface GetErrorListParams {
+  status?: ErrorStatus;
+  createdAt?: string;
+  project?: Project;
+  environment?: Environment;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface ErrorListResponse {
+  success: boolean;
+  data: {
+    list: ErrorItem[];
+    pagination: {
+      total: number;
+      page: number;
+      pageSize: number;
+      totalPages: number;
+    };
+  };
+}
+
+export const getErrorList = (params: GetErrorListParams): Promise<ErrorListResponse> => {
+  return request.get('/error/list', {
+    params: {
+      page: 1, // 默认值
+      pageSize: 10, // 默认值
+      ...params
+    }
+  })
 }
 
 export const updateErrorStatus = (id: number, status: ErrorStatus): Promise<void> => {
