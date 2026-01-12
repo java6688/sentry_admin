@@ -176,8 +176,27 @@ function Dashboard() {
       title: "状态",
       dataIndex: "status",
       key: "status",
-      width: 120,
-      render: (status: string) => getStatusTag(status),
+      width: 180,
+      render: (status: string, record: ErrorItem) => (
+        <Space size={4} className="status-column">
+          {getStatusTag(status)}
+          <Dropdown
+            menu={{
+              items: statusItems,
+              onClick: ({ key }) => handleStatusChange(record.id, key as ErrorStatus),
+            }}
+            trigger={["click"]}
+          >
+            <Button
+              type="text"
+              size="small"
+              icon={<DownOutlined />}
+              className="status-edit-btn"
+              style={{ padding: 0, minWidth: 0 }}
+            />
+          </Dropdown>
+        </Space>
+      ),
     },
     {
       title: "时间",
@@ -196,29 +215,15 @@ function Dashboard() {
     {
       title: "操作",
       key: "action",
-      width: 200,
+      width: 100,
       render: (_: unknown, record: ErrorItem) => (
-        <Space>
-          <Button
-            size="small"
-            type="link"
-            onClick={() => navigate(`/error/${record.id}`)}
-          >
-            查看详情
-          </Button>
-          <Dropdown
-            menu={{
-              items: statusItems,
-              onClick: ({ key }) =>
-                handleStatusChange(record.id, key as ErrorStatus),
-            }}
-            trigger={["click"]}
-          >
-            <Button size="small">
-              修改状态 <DownOutlined />
-            </Button>
-          </Dropdown>
-        </Space>
+        <Button
+          size="small"
+          type="link"
+          onClick={() => navigate(`/error/${record.id}`)}
+        >
+          查看详情
+        </Button>
       ),
     },
   ];

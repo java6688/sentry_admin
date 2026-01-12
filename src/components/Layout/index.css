@@ -29,14 +29,21 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
-.main-header .ant-menu-item:hover {
-  color: #fff;
+.main-header .ant-menu-item:hover,
+.main-header .ant-menu-submenu-title:hover {
+  color: #fff !important;
   background-color: rgba(255, 255, 255, 0.08);
 }
 
 .main-header .ant-menu-item-selected {
   color: #fff;
   background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* 确保所有menu item类型hover时文字颜色统一为白色 */
+.main-header .ant-menu-item:hover > a,
+.main-header .ant-menu-submenu-title:hover > a {
+  color: #fff !important;
 }
 
 /* 用户信息区域样式 */
@@ -49,7 +56,18 @@
 .username {
   color: #fff;
   font-size: 14px;
-  margin-right: 8px;
+}
+
+.arrow-icon {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  margin-left: 4px;
+  transition: transform 0.2s ease;
+}
+
+.user-info:hover .arrow-icon {
+  color: #fff;
+  transform: rotate(180deg);
 }
 
 .user-info .ant-avatar {

@@ -41,3 +41,33 @@
     flex-direction: column;
   }
 }
+
+/* 状态列样式 */
+.status-column {
+  display: flex;
+  align-items: center;
+}
+
+.status-edit-btn {
+  opacity: 0.6;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+}
+
+.status-edit-btn:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.04);
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.status-edit-btn:focus {
+  opacity: 1;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* 确保按钮点击区域合适 */
+.status-edit-btn .anticon {
+  font-size: 12px;
+  color: inherit;
+}

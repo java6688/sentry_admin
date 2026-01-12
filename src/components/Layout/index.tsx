@@ -63,10 +63,11 @@ function MainLayout({ children }: LayoutProps) {
         {/* 用户信息区域 */}
         {user && (
           <div className="user-info">
-            <Dropdown menu={dropdownMenu} trigger={['click']}>
+            <Dropdown menu={dropdownMenu} trigger={['hover']}>
               <Space>
                 <Avatar src={user.avatar} alt={user.username} />
                 <span className="username">{user.username}</span>
+                <span className="arrow-icon">▼</span>
               </Space>
             </Dropdown>
           </div>
