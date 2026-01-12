@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
-import { Typography, Layout, Menu, Card, Descriptions, Tag, Space, Button, Spin, message, Breadcrumb } from 'antd'
+import { Typography, Layout, Menu, Card, Descriptions, Tag, Space, Button, Spin, message, Breadcrumb, Select } from 'antd'
 import { ArrowLeftOutlined, ClockCircleOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { ErrorCategory, ErrorCategoryLabels, ErrorStatus, ErrorStatusLabels, ProjectLabels, EnvironmentLabels } from '../../enum'
-import { getErrorDetail, type ErrorItem } from '../../api'
+import { getErrorDetail, updateErrorStatus, type ErrorItem } from '../../api'
 import './index.css'
 
 const { Header, Content, Footer } = Layout
@@ -59,6 +59,21 @@ function ErrorDetail() {
   const location = useLocation()
   const [errorDetail, setErrorDetail] = useState<ErrorDetailData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [selectedStatus, setSelectedStatus] = useState<ErrorStatus | undefined>(undefined)
+  const [statusUpdating, setStatusUpdating] = useState(false)
+
+  const handleSaveStatus = async () => {
+    if (!id || !selectedStatus) return
+    setStatusUpdating(true)
+    try {
+      await updateErrorStatus(Number(id), selectedStatus)
+      // 更新本地状态
+      setErrorDetail(prev => prev ? { ...prev, status: selectedStatus } : null)
+      message.success('状态更新成功')
+    } finally {
+      setStatusUpdating(false)
+    }
+  }
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -66,6 +81,7 @@ function ErrorDetail() {
       try {
         const data = await getErrorDetail(Number(id))
         setErrorDetail(data)
+        setSelectedStatus(data.status)
       } catch {
         message.error('获取错误详情失败')
       } finally {
@@ -85,16 +101,16 @@ function ErrorDetail() {
     if (key === '2') navigate('/dashboard')
   }
 
-  const getStatusTag = (status?: string) => {
-    switch (status) {
-      case ErrorStatus.RESOLVED:
-        return <Tag color="success">{ErrorStatusLabels[ErrorStatus.RESOLVED]}</Tag>
-      case ErrorStatus.IN_PROGRESS:
-        return <Tag color="processing">{ErrorStatusLabels[ErrorStatus.IN_PROGRESS]}</Tag>
-      default:
-        return <Tag color="default">{ErrorStatusLabels[ErrorStatus.UNRESOLVED]}</Tag>
-    }
-  }
+  // const getStatusTag = (status?: string) => {
+  //   switch (status) {
+  //     case ErrorStatus.RESOLVED:
+  //       return <Tag color="success">{ErrorStatusLabels[ErrorStatus.RESOLVED]}</Tag>
+  //     case ErrorStatus.IN_PROGRESS:
+  //       return <Tag color="processing">{ErrorStatusLabels[ErrorStatus.IN_PROGRESS]}</Tag>
+  //     default:
+  //       return <Tag color="default">{ErrorStatusLabels[ErrorStatus.UNRESOLVED]}</Tag>
+  //   }
+  // }
 
   const getCategoryTag = (category: string) => {
     const color = category === ErrorCategory.API_ERROR ? 'orange' : category === ErrorCategory.FRONTEND_ERROR ? 'purple' : 'blue'
@@ -207,7 +223,27 @@ function ErrorDetail() {
               {getCategoryTag(errorDetail.category)}
             </Descriptions.Item>
             <Descriptions.Item label="错误状态">
-              {getStatusTag(errorDetail.status)}
+              <Space>
+                <Select
+                  value={selectedStatus}
+                  onChange={setSelectedStatus}
+                  style={{ width: 120 }}
+                >
+                  {Object.entries(ErrorStatusLabels).map(([status, label]) => (
+                    <Select.Option key={status} value={status}>
+                      {label}
+                    </Select.Option>
+                  ))}
+                </Select>
+                <Button
+                  type="primary"
+                  size="small"
+                  onClick={handleSaveStatus}
+                  loading={statusUpdating}
+                >
+                  保存
+                </Button>
+              </Space>
             </Descriptions.Item>
             <Descriptions.Item label="所属项目">
               <Tag color="blue">{ProjectLabels[errorDetail.project]}</Tag>
