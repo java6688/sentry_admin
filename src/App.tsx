@@ -3,6 +3,7 @@ import Login from "./pages/Login/index";
 import Home from "./pages/Home/index";
 import Dashboard from "./pages/Dashboard/index";
 import ErrorDetail from "./pages/ErrorDetail/index";
+import MainLayout from "./components/Layout/index";
 import "./App.css";
 
 function App() {
@@ -10,9 +11,9 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/error/:id" element={<ErrorDetail />} />
+        <Route path="/home" element={<MainLayout><Home /></MainLayout>} />
+        <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
+        <Route path="/error/:id" element={<MainLayout><ErrorDetail /></MainLayout>} />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
