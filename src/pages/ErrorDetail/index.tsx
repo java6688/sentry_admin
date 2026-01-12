@@ -32,11 +32,32 @@ const safeRender = (data: unknown): string => {
   }
 }
 
+// 定义错误详情接口，包含apiInfo和stackInfo
+interface ErrorDetailData extends ErrorItem {
+  apiInfoId?: number;
+  stackInfoId?: number;
+  apiInfo?: {
+    id: number;
+    url: string;
+    method: string;
+    statusCode: number;
+    payload: unknown;
+    responseData: string;
+  };
+  stackInfo?: {
+    id: number;
+    column: number;
+    filename: string;
+    functionName: string;
+    line: number;
+  };
+}
+
 function ErrorDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const location = useLocation()
-  const [errorDetail, setErrorDetail] = useState<ErrorItem | null>(null)
+  const [errorDetail, setErrorDetail] = useState<ErrorDetailData | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -177,6 +198,7 @@ function ErrorDetail() {
           <Title level={4}>错误详情</Title>
 
           <Descriptions bordered column={2} size="small">
+            {/* 基本信息 */}
             <Descriptions.Item label="错误 ID">{errorDetail.id}</Descriptions.Item>
             <Descriptions.Item label="错误类型">
               <Tag color="red">{errorDetail.type}</Tag>
@@ -193,44 +215,13 @@ function ErrorDetail() {
             <Descriptions.Item label="运行环境">
               <Tag color="green">{EnvironmentLabels[errorDetail.environment]}</Tag>
             </Descriptions.Item>
+            {errorDetail.apiInfoId && <Descriptions.Item label="API信息ID">{errorDetail.apiInfoId}</Descriptions.Item>}
+            {errorDetail.stackInfoId && <Descriptions.Item label="堆栈信息ID">{errorDetail.stackInfoId}</Descriptions.Item>}
             <Descriptions.Item label="发生时间" span={2}>
               <Space>
                 <ClockCircleOutlined />
                 <Text type="secondary">{dayjs(errorDetail.createdAt).format('YYYY-MM-DD HH:mm:ss')}</Text>
               </Space>
-            </Descriptions.Item>
-            <Descriptions.Item label="请求URL">{errorDetail.url || 'N/A'}</Descriptions.Item>
-            <Descriptions.Item label="请求方法">
-              {errorDetail.method ? <Tag color="orange">{errorDetail.method}</Tag> : 'N/A'}
-            </Descriptions.Item>
-            <Descriptions.Item label="响应状态码" span={2}>{errorDetail.statusCode || 'N/A'}</Descriptions.Item>
-            <Descriptions.Item label="请求负载" span={2}>
-              <div style={{
-                padding: '12px',
-                background: '#f5f5f5',
-                borderRadius: '4px',
-                fontFamily: 'monospace',
-                fontSize: '13px',
-                wordBreak: 'break-all',
-                maxHeight: '200px',
-                overflow: 'auto'
-              }}>
-                {safeRender(errorDetail.payload)}
-              </div>
-            </Descriptions.Item>
-            <Descriptions.Item label="响应数据" span={2}>
-              <div style={{
-                padding: '12px',
-                background: '#f5f5f5',
-                borderRadius: '4px',
-                fontFamily: 'monospace',
-                fontSize: '13px',
-                wordBreak: 'break-all',
-                maxHeight: '200px',
-                overflow: 'auto'
-              }}>
-                {safeRender(errorDetail.responseData)}
-              </div>
             </Descriptions.Item>
             <Descriptions.Item label="错误消息" span={2}>
               <div style={{
@@ -244,6 +235,55 @@ function ErrorDetail() {
                 {errorDetail.message}
               </div>
             </Descriptions.Item>
+
+            {/* API信息 */}
+            {errorDetail.apiInfoId && (
+              <>
+                <Descriptions.Item label="API URL" span={2}>{errorDetail.apiInfo?.url || 'N/A'}</Descriptions.Item>
+                <Descriptions.Item label="请求方法">
+                  {errorDetail.apiInfo?.method ? <Tag color="orange">{errorDetail.apiInfo.method}</Tag> : 'N/A'}
+                </Descriptions.Item>
+                <Descriptions.Item label="响应状态码">{errorDetail.apiInfo?.statusCode || 'N/A'}</Descriptions.Item>
+                <Descriptions.Item label="请求负载" span={2}>
+                  <div style={{
+                    padding: '12px',
+                    background: '#f5f5f5',
+                    borderRadius: '4px',
+                    fontFamily: 'monospace',
+                    fontSize: '13px',
+                    wordBreak: 'break-all',
+                    maxHeight: '200px',
+                    overflow: 'auto'
+                  }}>
+                    {safeRender(errorDetail.apiInfo?.payload)}
+                  </div>
+                </Descriptions.Item>
+                <Descriptions.Item label="响应数据" span={2}>
+                  <div style={{
+                    padding: '12px',
+                    background: '#f5f5f5',
+                    borderRadius: '4px',
+                    fontFamily: 'monospace',
+                    fontSize: '13px',
+                    wordBreak: 'break-all',
+                    maxHeight: '200px',
+                    overflow: 'auto'
+                  }}>
+                    {safeRender(errorDetail.apiInfo?.responseData)}
+                  </div>
+                </Descriptions.Item>
+              </>
+            )}
+
+            {/* 堆栈信息 */}
+            {errorDetail.stackInfoId && (
+              <>
+                <Descriptions.Item label="文件名" span={2}>{errorDetail.stackInfo?.filename || 'N/A'}</Descriptions.Item>
+                <Descriptions.Item label="函数名">{errorDetail.stackInfo?.functionName || 'N/A'}</Descriptions.Item>
+                <Descriptions.Item label="行号">{errorDetail.stackInfo?.line || 'N/A'}</Descriptions.Item>
+                <Descriptions.Item label="列号">{errorDetail.stackInfo?.column || 'N/A'}</Descriptions.Item>
+              </>
+            )}
           </Descriptions>
         </Card>
       </Content>

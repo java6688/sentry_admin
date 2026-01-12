@@ -34,7 +34,6 @@ import {
 } from "../../enum";
 import { getErrorList, updateErrorStatus, type ErrorItem } from "../../api";
 import "./index.css";
-import { KeepAlive } from "react-activation";
 
 const { Header, Content, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -234,182 +233,179 @@ function Dashboard() {
   ];
 
   return (
-    <KeepAlive>
-      <Layout className="dashboard-layout">
-        <Header className="dashboard-header">
-          <Title level={4} className="dashboard-logo">
-            Sentry Admin
-          </Title>
-          <Menu
-            mode="horizontal"
-            selectedKeys={[getSelectedKey()]}
-            onClick={({ key }) => handleMenuClick(key)}
-            items={[
-              { key: "1", label: "首页" },
-              { key: "2", label: "信息面板" },
-            ]}
-          />
-        </Header>
-        <Content className="dashboard-content">
-          <div className="dashboard-stats-row">
-            <Card className="dashboard-stat-card">
-              <Statistic
-                title="总错误数"
-                value={errorData.length}
-                prefix={<CheckCircleOutlined />}
-                styles={{ content: { color: "#667eea" } }}
-              />
-            </Card>
-            <Card className="dashboard-stat-card">
-              <Statistic
-                title="API 错误"
-                value={
-                  errorData.filter(
-                    (item) => item.category === ErrorCategory.API_ERROR
-                  ).length
-                }
-                prefix={<Tag color="orange">API</Tag>}
-                styles={{ content: { color: "#f5576c" } }}
-              />
-            </Card>
-            <Card className="dashboard-stat-card">
-              <Statistic
-                title="前端错误"
-                value={
-                  errorData.filter(
-                    (item) => item.category === ErrorCategory.FRONTEND_ERROR
-                  ).length
-                }
-                prefix={<Tag color="purple">FE</Tag>}
-                styles={{ content: { color: "#722ed1" } }}
-              />
-            </Card>
-            <Card className="dashboard-stat-card">
-              <Statistic
-                title="其他错误"
-                value={
-                  errorData.filter(
-                    (item) => item.category === ErrorCategory.OTHER
-                  ).length
-                }
-                prefix={<Tag color="blue">OTHER</Tag>}
-                styles={{ content: { color: "#52c41a" } }}
-              />
-            </Card>
-            <Card className="dashboard-stat-card">
-              <Statistic
-                title={ErrorStatusLabels[ErrorStatus.UNRESOLVED]}
-                value={
-                  errorData.filter(
-                    (item) => item.status === ErrorStatus.UNRESOLVED
-                  ).length
-                }
-                prefix={<Tag color="default">UNRESOLVED</Tag>}
-                styles={{ content: { color: "#faad14" } }}
-              />
-            </Card>
-            <Card className="dashboard-stat-card">
-              <Statistic
-                title={ErrorStatusLabels[ErrorStatus.RESOLVED]}
-                value={
-                  errorData.filter(
-                    (item) => item.status === ErrorStatus.RESOLVED
-                  ).length
-                }
-                prefix={<Tag color="success">RESOLVED</Tag>}
-                styles={{ content: { color: "#52c41a" } }}
-              />
-            </Card>
-            <Card className="dashboard-stat-card">
-              <Statistic
-                title={ErrorStatusLabels[ErrorStatus.IN_PROGRESS]}
-                value={
-                  errorData.filter(
-                    (item) => item.status === ErrorStatus.IN_PROGRESS
-                  ).length
-                }
-                prefix={<Tag color="processing">IN_PROGRESS</Tag>}
-                styles={{ content: { color: "#1890ff" } }}
-              />
-            </Card>
-          </div>
-
-          <Card title="错误日志" className="dashboard-card">
-            <Space style={{ marginBottom: 16 }}>
-              <Select
-                placeholder="选择状态筛选"
-                allowClear
-                style={{ width: 150 }}
-                value={statusFilter}
-                onChange={setStatusFilter}
-                options={[
-                  {
-                    value: ErrorStatus.UNRESOLVED,
-                    label: ErrorStatusLabels[ErrorStatus.UNRESOLVED],
-                  },
-                  {
-                    value: ErrorStatus.RESOLVED,
-                    label: ErrorStatusLabels[ErrorStatus.RESOLVED],
-                  },
-                  {
-                    value: ErrorStatus.IN_PROGRESS,
-                    label: ErrorStatusLabels[ErrorStatus.IN_PROGRESS],
-                  },
-                ]}
-              />
-              <DatePicker
-                placeholder="选择日期筛选"
-                allowClear
-                style={{ width: 150 }}
-                value={dateFilter}
-                onChange={setDateFilter}
-              />
-              <Select
-                placeholder="选择环境筛选"
-                allowClear
-                style={{ width: 150 }}
-                value={environmentFilter}
-                onChange={setEnvironmentFilter}
-                options={[
-                  {
-                    value: Environment.PRODUCTION,
-                    label: EnvironmentLabels[Environment.PRODUCTION],
-                  },
-                  {
-                    value: Environment.DEVELOPMENT,
-                    label: EnvironmentLabels[Environment.DEVELOPMENT],
-                  },
-                  {
-                    value: Environment.TEST,
-                    label: EnvironmentLabels[Environment.TEST],
-                  },
-                ]}
-              />
-            </Space>
-            <Tabs
-              activeKey={selectedProject}
-              onChange={(key) => setSelectedProject(key as Project)}
-              style={{ marginBottom: 16 }}
-              items={[
-                { key: Project.TEST, label: ProjectLabels[Project.TEST] },
-                { key: Project.TENANT, label: ProjectLabels[Project.TENANT] },
-                { key: Project.DEVICE, label: ProjectLabels[Project.DEVICE] },
-              ]}
-            />
-            <Table
-              dataSource={errorData}
-              columns={columns}
-              rowKey="id"
-              pagination={false}
-              loading={loading}
+    <Layout className="dashboard-layout">
+      <Header className="dashboard-header">
+        <Title level={4} className="dashboard-logo">
+          Sentry Admin
+        </Title>
+        <Menu
+          mode="horizontal"
+          selectedKeys={[getSelectedKey()]}
+          onClick={({ key }) => handleMenuClick(key)}
+          items={[
+            { key: "1", label: "首页" },
+            { key: "2", label: "信息面板" },
+          ]}
+        />
+      </Header>
+      <Content className="dashboard-content">
+        <div className="dashboard-stats-row">
+          <Card className="dashboard-stat-card">
+            <Statistic
+              title="总错误数"
+              value={errorData.length}
+              prefix={<CheckCircleOutlined />}
+              styles={{ content: { color: "#667eea" } }}
             />
           </Card>
-        </Content>
-        <Footer className="dashboard-footer">
-          Sentry Admin ©2025 Created by Sentry
-        </Footer>
-      </Layout>
-    </KeepAlive>
+          <Card className="dashboard-stat-card">
+            <Statistic
+              title="API 错误"
+              value={
+                errorData.filter(
+                  (item) => item.category === ErrorCategory.API_ERROR
+                ).length
+              }
+              prefix={<Tag color="orange">API</Tag>}
+              styles={{ content: { color: "#f5576c" } }}
+            />
+          </Card>
+          <Card className="dashboard-stat-card">
+            <Statistic
+              title="前端错误"
+              value={
+                errorData.filter(
+                  (item) => item.category === ErrorCategory.FRONTEND_ERROR
+                ).length
+              }
+              prefix={<Tag color="purple">FE</Tag>}
+              styles={{ content: { color: "#722ed1" } }}
+            />
+          </Card>
+          <Card className="dashboard-stat-card">
+            <Statistic
+              title="其他错误"
+              value={
+                errorData.filter(
+                  (item) => item.category === ErrorCategory.OTHER
+                ).length
+              }
+              prefix={<Tag color="blue">OTHER</Tag>}
+              styles={{ content: { color: "#52c41a" } }}
+            />
+          </Card>
+          <Card className="dashboard-stat-card">
+            <Statistic
+              title={ErrorStatusLabels[ErrorStatus.UNRESOLVED]}
+              value={
+                errorData.filter(
+                  (item) => item.status === ErrorStatus.UNRESOLVED
+                ).length
+              }
+              prefix={<Tag color="default">UNRESOLVED</Tag>}
+              styles={{ content: { color: "#faad14" } }}
+            />
+          </Card>
+          <Card className="dashboard-stat-card">
+            <Statistic
+              title={ErrorStatusLabels[ErrorStatus.RESOLVED]}
+              value={
+                errorData.filter((item) => item.status === ErrorStatus.RESOLVED)
+                  .length
+              }
+              prefix={<Tag color="success">RESOLVED</Tag>}
+              styles={{ content: { color: "#52c41a" } }}
+            />
+          </Card>
+          <Card className="dashboard-stat-card">
+            <Statistic
+              title={ErrorStatusLabels[ErrorStatus.IN_PROGRESS]}
+              value={
+                errorData.filter(
+                  (item) => item.status === ErrorStatus.IN_PROGRESS
+                ).length
+              }
+              prefix={<Tag color="processing">IN_PROGRESS</Tag>}
+              styles={{ content: { color: "#1890ff" } }}
+            />
+          </Card>
+        </div>
+
+        <Card title="错误日志" className="dashboard-card">
+          <Space style={{ marginBottom: 16 }}>
+            <Select
+              placeholder="选择状态筛选"
+              allowClear
+              style={{ width: 150 }}
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={[
+                {
+                  value: ErrorStatus.UNRESOLVED,
+                  label: ErrorStatusLabels[ErrorStatus.UNRESOLVED],
+                },
+                {
+                  value: ErrorStatus.RESOLVED,
+                  label: ErrorStatusLabels[ErrorStatus.RESOLVED],
+                },
+                {
+                  value: ErrorStatus.IN_PROGRESS,
+                  label: ErrorStatusLabels[ErrorStatus.IN_PROGRESS],
+                },
+              ]}
+            />
+            <DatePicker
+              placeholder="选择日期筛选"
+              allowClear
+              style={{ width: 150 }}
+              value={dateFilter}
+              onChange={setDateFilter}
+            />
+            <Select
+              placeholder="选择环境筛选"
+              allowClear
+              style={{ width: 150 }}
+              value={environmentFilter}
+              onChange={setEnvironmentFilter}
+              options={[
+                {
+                  value: Environment.PRODUCTION,
+                  label: EnvironmentLabels[Environment.PRODUCTION],
+                },
+                {
+                  value: Environment.DEVELOPMENT,
+                  label: EnvironmentLabels[Environment.DEVELOPMENT],
+                },
+                {
+                  value: Environment.TEST,
+                  label: EnvironmentLabels[Environment.TEST],
+                },
+              ]}
+            />
+          </Space>
+          <Tabs
+            activeKey={selectedProject}
+            onChange={(key) => setSelectedProject(key as Project)}
+            style={{ marginBottom: 16 }}
+            items={[
+              { key: Project.TEST, label: ProjectLabels[Project.TEST] },
+              { key: Project.TENANT, label: ProjectLabels[Project.TENANT] },
+              { key: Project.DEVICE, label: ProjectLabels[Project.DEVICE] },
+            ]}
+          />
+          <Table
+            dataSource={errorData}
+            columns={columns}
+            rowKey="id"
+            pagination={false}
+            loading={loading}
+          />
+        </Card>
+      </Content>
+      <Footer className="dashboard-footer">
+        Sentry Admin ©2025 Created by Sentry
+      </Footer>
+    </Layout>
   );
 }
 
