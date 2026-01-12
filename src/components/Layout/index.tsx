@@ -1,5 +1,7 @@
-import { Layout, Menu, Typography } from 'antd'
+import { Layout, Menu, Typography, Avatar, Dropdown, Space } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { LogoutOutlined } from '@ant-design/icons'
+import { useUser } from '../../contexts/UserContext'
 import './index.css'
 
 const { Header, Content, Footer } = Layout
@@ -12,6 +14,7 @@ interface LayoutProps {
 function MainLayout({ children }: LayoutProps) {
   const navigate = useNavigate()
   const location = useLocation()
+  const { user, logout } = useUser()
 
   const getSelectedKey = () => {
     if (location.pathname === '/dashboard' || location.pathname.startsWith('/error/')) return '2'
@@ -21,6 +24,27 @@ function MainLayout({ children }: LayoutProps) {
   const handleMenuClick = (key: string) => {
     if (key === '1') navigate('/home')
     if (key === '2') navigate('/dashboard')
+  }
+
+  // 退出登录处理
+  const handleLogout = () => {
+    logout()
+  }
+
+  // 下拉菜单选项
+  const dropdownMenu = {
+    items: [
+      {
+        key: '1',
+        label: (
+          <Space>
+            <LogoutOutlined />
+            退出登录
+          </Space>
+        ),
+        onClick: handleLogout
+      }
+    ]
   }
 
   return (
@@ -36,6 +60,17 @@ function MainLayout({ children }: LayoutProps) {
             { key: '2', label: '信息面板' },
           ]}
         />
+        {/* 用户信息区域 */}
+        {user && (
+          <div className="user-info">
+            <Dropdown menu={dropdownMenu} trigger={['click']}>
+              <Space>
+                <Avatar src={user.avatar} alt={user.username} />
+                <span className="username">{user.username}</span>
+              </Space>
+            </Dropdown>
+          </div>
+        )}
       </Header>
       <Content className="main-content">
         {children}

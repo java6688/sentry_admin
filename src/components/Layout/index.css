@@ -6,25 +6,96 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 0 24px;
+  background: linear-gradient(90deg, #1a1a2e 0%, #16213e 100%);
 }
 
 .main-logo {
   margin: 0;
-  color: #1890ff;
+  margin-right: 40px;
+  color: #e0e0e0 !important;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.main-header .ant-menu-horizontal {
+  border-bottom: none;
+  flex: 1;
+  background: transparent;
+}
+
+.main-header .ant-menu-item {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.main-header .ant-menu-item:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.main-header .ant-menu-item-selected {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* 用户信息区域样式 */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.username {
+  color: #fff;
+  font-size: 14px;
+  margin-right: 8px;
+}
+
+.user-info .ant-avatar {
   cursor: pointer;
 }
 
+.user-info .ant-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-info .ant-dropdown-menu {
+  min-width: 120px;
+}
+
 .main-content {
-  padding: 24px;
+  padding: 24px 48px;
   background-color: #f0f2f5;
   min-height: calc(100vh - 128px);
 }
 
 .main-footer {
   text-align: center;
+  padding: 24px;
   background-color: #fff;
   border-top: 1px solid #f0f0f0;
+  color: #999;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 16px;
+  }
+  
+  .main-header {
+    padding: 0 16px;
+  }
+  
+  .main-logo {
+    margin-right: 16px;
+    font-size: 16px;
+  }
+  
+  .username {
+    display: none;
+  }
 }

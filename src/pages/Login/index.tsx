@@ -1,18 +1,24 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { Form, Input, Button, Card, message } from 'antd'
+import { useUser } from '../../contexts/UserContext'
 import './index.css'
 
 function Login() {
   const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
+  const { login } = useUser()
 
   const onFinish = (values: { username: string; password: string }) => {
     setLoading(true)
     setTimeout(() => {
       if (values.username === 'admin' && values.password === '123456') {
         message.success('登录成功')
-        navigate('/dashboard')
+        // 调用UserContext的登录方法
+        login({
+          id: 1,
+          username: values.username,
+          email: 'admin@example.com',
+          avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Admin'
+        })
       } else {
         message.error('用户名或密码错误')
       }
