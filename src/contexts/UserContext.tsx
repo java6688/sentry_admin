@@ -69,13 +69,4 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   );
 };
 
-// 自定义Hook，方便组件使用上下文
-export const useUser = () => {
-  const context = React.useContext(UserContext);
-  if (context === undefined) {
-    throw new Error('useUser must be used within a UserProvider');
-  }
-  return context;
-};
-
 export { UserContext, UserProvider };

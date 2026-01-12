@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom'
-import { useUser } from '../contexts/UserContext'
+import { useUser } from '../hooks/useUser'
 
 // 受保护路由组件
 export const ProtectedRoute = () => {

@@ -1,7 +1,7 @@
 import { Layout, Menu, Typography, Avatar, Dropdown, Space } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { LogoutOutlined } from '@ant-design/icons'
-import { useUser } from '../../contexts/UserContext'
+import { useUser } from '../../hooks/useUser'
 import './index.css'
 
 const { Header, Content, Footer } = Layout

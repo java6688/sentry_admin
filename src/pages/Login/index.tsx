@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Form, Input, Button, Card, message } from 'antd'
-import { useUser } from '../../contexts/UserContext'
+import { useUser } from '../../hooks/useUser'
 import './index.css'
 
 function Login() {
