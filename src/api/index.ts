@@ -90,3 +90,8 @@ export const updateErrorStatus = (id: number, status: ErrorStatus): Promise<ApiR
 export const getErrorDetail = (id: number): Promise<ApiResponse<ErrorItem>> => {
   return request.get(`/error/${id}`)
 }
+
+// 退出登录接口
+export const logout = (): Promise<ApiResponse<void>> => {
+  return request.post('/auth/logout');
+}
