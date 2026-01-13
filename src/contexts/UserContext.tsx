@@ -68,7 +68,7 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       localStorage.removeItem('token'); // 清除token
       // 退出登录后导航到登录页
       navigate('/login');
-    } catch (error) {
+    } catch {
       // 接口调用失败，显示确认框
       Modal.confirm({
         title: '退出登录失败',
@@ -86,7 +86,7 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
             localStorage.removeItem('token'); // 清除token
             // 退出登录后导航到登录页
             navigate('/login');
-          } catch (retryError) {
+          } catch {
             // 再次调用失败，提示用户
             message.error('退出登录失败，请稍后重试');
           }
