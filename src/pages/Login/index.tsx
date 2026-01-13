@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Form, Input, Button, Card, message } from 'antd'
+import { LockOutlined, UserOutlined } from '@ant-design/icons'
 import { useUser } from '../../hooks/useUser'
 import { login } from '../../api/index'
 import './index.css'
@@ -31,7 +32,16 @@ function Login() {
 
   return (
     <div className="login-container">
-      <Card title="系统登录" className="login-card">
+      <Card className="login-card">
+        {/* 登录卡片头部 */}
+        <div className="login-header">
+          <div className="login-logo">
+            <LockOutlined />
+          </div>
+          <h1 className="login-title">Sentry Admin</h1>
+          <p className="login-desc">前端错误信息收集管理系统</p>
+        </div>
+        
         <Form
           name="login"
           onFinish={onFinish}
@@ -43,7 +53,10 @@ function Login() {
             name="username"
             rules={[{ required: true, message: '请输入用户名' }]}
           >
-            <Input placeholder="admin" />
+            <Input
+              placeholder="admin"
+              prefix={<UserOutlined className="site-form-item-icon" />}
+            />
           </Form.Item>
 
           <Form.Item
@@ -51,7 +64,11 @@ function Login() {
             name="password"
             rules={[{ required: true, message: '请输入密码' }]}
           >
-            <Input.Password placeholder="123456" />
+            <Input.Password
+              placeholder="123456"
+              prefix={<LockOutlined className="site-form-item-icon" />}
+              visibilityToggle
+            />
           </Form.Item>
 
           <Form.Item>
