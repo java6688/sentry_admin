@@ -31,10 +31,23 @@ const safeRender = (data: unknown): string => {
   }
 }
 
+// 浏览器信息类型定义
+export type BrowserInfo = {
+  name: string;
+  version: string;
+  os: string;
+  osVersion: string;
+  deviceType: string;
+  screenResolution: string;
+  language: string;
+  userAgent: string;
+};
+
 // 定义错误详情接口，包含apiInfo和stackInfo
 interface ErrorDetailData extends ErrorItem {
   apiInfoId?: number;
   stackInfoId?: number;
+  browserInfo?: BrowserInfo;
   apiInfo?: {
     id: number;
     url: string;
@@ -137,6 +150,8 @@ function ErrorDetail() {
 
         <Title level={4}>错误详情</Title>
 
+        {/* 基本信息表 */}
+        <Title level={5} style={{ marginTop: 24, marginBottom: 16 }}>基本信息</Title>
         <Descriptions bordered column={2} size="small">
           {/* 基本信息 */}
           <Descriptions.Item label="错误 ID">{errorDetail.id}</Descriptions.Item>
@@ -195,10 +210,57 @@ function ErrorDetail() {
               {errorDetail.message}
             </div>
           </Descriptions.Item>
+        </Descriptions>
 
-          {/* API信息 */}
-          {errorDetail.apiInfoId && (
-            <>
+        {/* 调用栈信息表 */}
+        <Title level={5} style={{ marginTop: 24, marginBottom: 16 }}>调用栈信息</Title>
+        <Descriptions bordered column={2} size="small">
+          {/* 堆栈信息 */}
+          <Descriptions.Item label="文件名" span={2}>{errorDetail.stackInfo?.filename || 'N/A'}</Descriptions.Item>
+          <Descriptions.Item label="函数名">{errorDetail.stackInfo?.functionName || 'N/A'}</Descriptions.Item>
+          <Descriptions.Item label="行号">{errorDetail.stackInfo?.line || 'N/A'}</Descriptions.Item>
+          <Descriptions.Item label="列号">{errorDetail.stackInfo?.column || 'N/A'}</Descriptions.Item>
+        </Descriptions>
+
+        {/* 浏览器信息表 */}
+        <Title level={5} style={{ marginTop: 24, marginBottom: 16 }}>浏览器信息</Title>
+        <Descriptions bordered column={2} size="small">
+          {/* 浏览器信息 */}
+          <Descriptions.Item label="浏览器" span={2}>
+            {errorDetail.browserInfo?.name && errorDetail.browserInfo?.version
+              ? `${errorDetail.browserInfo?.name} ${errorDetail.browserInfo?.version}`
+              : 'N/A'}
+          </Descriptions.Item>
+          <Descriptions.Item label="操作系统">
+            {errorDetail.browserInfo?.os && errorDetail.browserInfo?.osVersion
+              ? `${errorDetail.browserInfo?.os} ${errorDetail.browserInfo?.osVersion}`
+              : 'N/A'}
+          </Descriptions.Item>
+          <Descriptions.Item label="设备类型">{errorDetail.browserInfo?.deviceType || 'N/A'}</Descriptions.Item>
+          <Descriptions.Item label="屏幕分辨率">{errorDetail.browserInfo?.screenResolution || 'N/A'}</Descriptions.Item>
+          <Descriptions.Item label="语言">{errorDetail.browserInfo?.language || 'N/A'}</Descriptions.Item>
+          <Descriptions.Item label="User Agent" span={2}>
+            <div style={{
+              padding: '12px',
+              background: '#f5f5f5',
+              borderRadius: '4px',
+              fontFamily: 'monospace',
+              fontSize: '13px',
+              wordBreak: 'break-all',
+              maxHeight: '200px',
+              overflow: 'auto'
+            }}>
+              {errorDetail.browserInfo?.userAgent || 'N/A'}
+            </div>
+          </Descriptions.Item>
+        </Descriptions>
+
+        {/* 接口调用信息表 */}
+        {errorDetail.apiInfoId && (
+          <>
+            <Title level={5} style={{ marginTop: 24, marginBottom: 16 }}>接口调用信息</Title>
+            <Descriptions bordered column={2} size="small">
+              {/* API信息 */}
               <Descriptions.Item label="API URL" span={2}>{errorDetail.apiInfo?.url || 'N/A'}</Descriptions.Item>
               <Descriptions.Item label="请求方法">
                 {errorDetail.apiInfo?.method ? <Tag color="orange">{errorDetail.apiInfo.method}</Tag> : 'N/A'}
@@ -232,19 +294,9 @@ function ErrorDetail() {
                   {safeRender(errorDetail.apiInfo?.responseData)}
                 </div>
               </Descriptions.Item>
-            </>
-          )}
-
-          {/* 堆栈信息 */}
-          {errorDetail.stackInfoId && (
-            <>
-              <Descriptions.Item label="文件名" span={2}>{errorDetail.stackInfo?.filename || 'N/A'}</Descriptions.Item>
-              <Descriptions.Item label="函数名">{errorDetail.stackInfo?.functionName || 'N/A'}</Descriptions.Item>
-              <Descriptions.Item label="行号">{errorDetail.stackInfo?.line || 'N/A'}</Descriptions.Item>
-              <Descriptions.Item label="列号">{errorDetail.stackInfo?.column || 'N/A'}</Descriptions.Item>
-            </>
-          )}
-        </Descriptions>
+            </Descriptions>
+          </>
+        )}
       </Card>
     </>
   )
