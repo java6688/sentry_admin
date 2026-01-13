@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { message } from 'antd'
+import { message, Modal } from 'antd'
 
 const request = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -39,8 +39,20 @@ request.interceptors.response.use(
           message.error(data.message || '请求参数错误')
           break
         case 401:
-          localStorage.removeItem('token')
-          window.location.href = '/login'
+          Modal.confirm({
+            title: '登录过期',
+            content: '您的登录已过期，是否重新登录？',
+            okText: '重新登录',
+            cancelText: '取消',
+            onOk() {
+              localStorage.removeItem('token');
+              localStorage.removeItem('user');
+              window.location.href = '/login';
+            },
+            onCancel() {
+              // 不执行任何操作
+            }
+          });
           break
         case 403:
           message.error('没有权限访问')
