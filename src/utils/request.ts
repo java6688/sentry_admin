@@ -32,12 +32,12 @@ request.interceptors.response.use(
   },
   (error) => {
     console.error(error)
-    if(error.response.data.message) {
-      message.error(error.response.data.message)
-    }
     if (error.response) {
       const { status, data } = error.response
       switch (status) {
+        case 400:
+          message.error(data.message || '请求参数错误')
+          break
         case 401:
           localStorage.removeItem('token')
           window.location.href = '/login'

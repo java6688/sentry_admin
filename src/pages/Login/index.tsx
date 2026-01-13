@@ -1,29 +1,32 @@
 import { useState } from 'react'
 import { Form, Input, Button, Card, message } from 'antd'
 import { useUser } from '../../hooks/useUser'
+import { login } from '../../api/index'
 import './index.css'
 
 function Login() {
   const [loading, setLoading] = useState(false)
-  const { login } = useUser()
+  const { login: userLogin } = useUser()
 
-  const onFinish = (values: { username: string; password: string }) => {
+  const onFinish = async (values: { username: string; password: string }) => {
     setLoading(true)
-    setTimeout(() => {
-      if (values.username === 'admin' && values.password === '123456') {
-        message.success('登录成功')
-        // 调用UserContext的登录方法
-        login({
-          id: 1,
-          username: values.username,
-          email: 'admin@example.com',
-          avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=Admin'
-        })
-      } else {
-        message.error('用户名或密码错误')
+    try {
+      console.log('values1', values)
+      const response = await login(values)
+      console.log('response2', response)
+      if (response.success) {
+        message.success(response.message)
+        // 调用UserContext的登录方法，传递用户信息和token
+        userLogin({
+          id: response.data.user.id,
+          username: response.data.user.username,
+          email: '',
+          avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=' + response.data.user.username
+        }, response.data.accessToken)
       }
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (

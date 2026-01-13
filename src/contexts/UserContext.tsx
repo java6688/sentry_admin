@@ -13,7 +13,7 @@ interface UserInfo {
 interface UserContextType {
   user: UserInfo | null;
   isLoggedIn: boolean;
-  login: (userInfo: UserInfo) => void;
+  login: (userInfo: UserInfo, token: string) => void;
   logout: () => void;
 }
 
@@ -26,6 +26,7 @@ const getInitialUser = (): UserInfo | null => {
     } catch (error) {
       console.error('Failed to parse saved user:', error);
       localStorage.removeItem('user');
+      localStorage.removeItem('token');
       return null;
     }
   }
@@ -44,10 +45,11 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(initialUser !== null);
 
   // 登录方法
-  const login = (userInfo: UserInfo) => {
+  const login = (userInfo: UserInfo, token: string) => {
     setUser(userInfo);
     setIsLoggedIn(true);
     localStorage.setItem('user', JSON.stringify(userInfo));
+    localStorage.setItem('token', token);
     // 登录成功后导航到首页
     navigate('/home');
   };
