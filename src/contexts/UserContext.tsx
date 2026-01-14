@@ -1,7 +1,7 @@
-import React, { createContext, useState, type ReactNode } from 'react';
+import React, { createContext, useEffect, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Modal, message } from 'antd';
-import { logout as logoutApi } from '../api';
+import { logout as logoutApi, me } from '../api';
 
 // 用户信息类型
 interface UserInfo {
@@ -9,6 +9,8 @@ interface UserInfo {
   username: string;
   email?: string;
   avatar?: string;
+  roles?: string[];
+  permissions?: string[];
 }
 
 // 上下文类型
@@ -45,6 +47,23 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const initialUser = getInitialUser();
   const [user, setUser] = useState<UserInfo | null>(initialUser);
   const [isLoggedIn, setIsLoggedIn] = useState(initialUser !== null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) return
+    me().then(res => {
+      const info = { id: res.data.id, username: res.data.username, roles: res.data.roles, disabled: res.data.disabled }
+      setUser(info as UserInfo)
+      setIsLoggedIn(true)
+      localStorage.setItem('user', JSON.stringify(info))
+    }).catch(() => {
+      setUser(null)
+      setIsLoggedIn(false)
+      localStorage.removeItem('user')
+      localStorage.removeItem('token')
+      navigate('/login')
+    })
+  }, [navigate])
 
   // 登录方法
   const login = (userInfo: UserInfo, token: string) => {

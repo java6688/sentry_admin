@@ -29,6 +29,10 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
+.main-header .ant-menu-submenu-title {
+  color: rgba(255, 255, 255, 0.7);
+}
+
 .main-header .ant-menu-item:hover,
 .main-header .ant-menu-submenu-title:hover {
   color: #fff !important;
@@ -36,6 +40,11 @@
 }
 
 .main-header .ant-menu-item-selected {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.main-header .ant-menu-submenu-selected > .ant-menu-submenu-title {
   color: #fff;
   background-color: rgba(255, 255, 255, 0.15);
 }
@@ -63,6 +72,17 @@
   font-size: 12px;
   margin-left: 4px;
   transition: transform 0.2s ease;
+}
+
+.menu-label-with-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.main-header .ant-menu-horizontal .ant-menu-submenu:hover .menu-label-with-arrow .arrow-icon {
+  color: #fff;
+  transform: rotate(180deg);
 }
 
 .user-info:hover .arrow-icon {

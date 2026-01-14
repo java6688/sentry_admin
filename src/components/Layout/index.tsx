@@ -11,19 +11,28 @@ interface LayoutProps {
   children: React.ReactNode
 }
 
-function MainLayout({ children }: LayoutProps) {
+export default function MainLayout({ children }: LayoutProps) {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useUser()
 
   const getSelectedKey = () => {
-    if (location.pathname === '/dashboard' || location.pathname.startsWith('/error/')) return '2'
-    return '1'
+    if (location.pathname === '/dashboard' || location.pathname.startsWith('/error/')) return 'dashboard'
+    if (location.pathname.startsWith('/rbac/user-roles')) return 'user'
+    if (location.pathname.startsWith('/rbac/assign-permissions')) return 'rbac-assign-perms'
+    if (location.pathname.startsWith('/rbac/permissions')) return 'rbac-permissions'
+    if (location.pathname.startsWith('/rbac/roles') || location.pathname === '/rbac') return 'rbac-roles'
+    if (location.pathname.startsWith('/home')) return 'home'
+    return 'home'
   }
 
   const handleMenuClick = (key: string) => {
-    if (key === '1') navigate('/home')
-    if (key === '2') navigate('/dashboard')
+    if (key === 'home') navigate('/home')
+    if (key === 'dashboard') navigate('/dashboard')
+    if (key === 'rbac-roles') navigate('/rbac/roles')
+    if (key === 'rbac-permissions') navigate('/rbac/permissions')
+    if (key === 'rbac-assign-perms') navigate('/rbac/assign-permissions')
+    if (key === 'user') navigate('/rbac/user-roles')
   }
 
   // 退出登录处理
@@ -35,7 +44,12 @@ function MainLayout({ children }: LayoutProps) {
   const dropdownMenu = {
     items: [
       {
-        key: '1',
+        key: 'profile',
+        label: '个人信息',
+        onClick: () => navigate('/profile')
+      },
+      {
+        key: 'logout',
         label: (
           <Space>
             <LogoutOutlined />
@@ -56,8 +70,22 @@ function MainLayout({ children }: LayoutProps) {
           selectedKeys={[getSelectedKey()]}
           onClick={({ key }) => handleMenuClick(key)}
           items={[
-            { key: '1', label: '首页' },
-            { key: '2', label: '信息面板' },
+            { key: 'home', label: '首页' },
+            { key: 'dashboard', label: '信息面板' },
+            {
+              key: 'rbac',
+              label: (
+                <span className="menu-label-with-arrow">
+                  权限管理 <span className="arrow-icon">▼</span>
+                </span>
+              ),
+              children: [
+                { key: 'rbac-roles', label: '角色管理' },
+                { key: 'rbac-permissions', label: '权限管理' },
+                { key: 'rbac-assign-perms', label: '分配权限(批量)' },
+              ],
+            },
+            { key: 'user', label: '用户管理' },
           ]}
         />
         {/* 用户信息区域 */}
@@ -82,5 +110,3 @@ function MainLayout({ children }: LayoutProps) {
     </Layout>
   )
 }
-
-export default MainLayout

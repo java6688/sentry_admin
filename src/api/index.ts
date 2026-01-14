@@ -95,3 +95,23 @@ export const getErrorDetail = (id: number): Promise<ApiResponse<ErrorItem>> => {
 export const logout = (): Promise<ApiResponse<void>> => {
   return request.post('/auth/logout');
 }
+
+// 注册接口
+export const register = (payload: { username: string; password: string }): Promise<ApiResponse<{ id: number; username: string }>> => {
+  return request.post('/auth/register', payload)
+}
+
+// 当前用户信息
+export const me = (): Promise<ApiResponse<{ id: number; username: string; roles?: string[]; disabled?: boolean }>> => {
+  return request.get('/auth/me')
+}
+
+// 禁用用户
+export const disableUser = (userId: number): Promise<ApiResponse<void>> => {
+  return request.post(`/auth/disable/${userId}`)
+}
+
+// 启用用户
+export const enableUser = (userId: number): Promise<ApiResponse<void>> => {
+  return request.post(`/auth/enable/${userId}`)
+}
