@@ -52,7 +52,7 @@ export default function AssignRolePermissions() {
           <Transfer
             dataSource={items}
             targetKeys={targetKeys}
-            onChange={setTargetKeys}
+            onChange={(keys) => setTargetKeys(keys.map(String))}
             render={item => item.title ?? ''}
             styles={{ list: { width: 320, height: 380 } }}
           />

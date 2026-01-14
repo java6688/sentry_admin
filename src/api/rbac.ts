@@ -5,6 +5,8 @@ export interface Permission {
   id: number
   name: string
   description?: string
+  code?: string
+  parentId?: number
 }
 
 export interface Role {
@@ -49,13 +51,18 @@ export interface GetRoleListParams {
 
 export const getRoleList = (params: GetRoleListParams = {}): Promise<PaginationResponse<Role>> => {
   const final = { page: 1, pageSize: 10, ...params }
-  return request.get(RBAC_API_PATHS.roleList, { params: final }).then((res: { data: unknown }) => {
-    const raw = res?.data
+  return request.get(RBAC_API_PATHS.roleList, { params: final }).then((res: unknown) => {
+    const raw = (res as any)?.data ?? res
     // case 1: { list: Role[], pagination: {...} }
     if (typeof raw === 'object' && raw !== null) {
       const obj = raw as { list?: unknown; pagination?: unknown; items?: unknown; total?: number }
       if (Array.isArray(obj.list) && typeof obj.pagination === 'object' && obj.pagination !== null) {
-        return { success: true, data: obj as unknown as { list: Role[]; pagination: { page: number; pageSize: number; total: number; totalPages?: number } } }
+        const p = obj.pagination as { page?: number; pageSize?: number; total?: number; totalPages?: number }
+        const page = typeof p.page === 'number' ? p.page : final.page
+        const pageSize = typeof p.pageSize === 'number' ? p.pageSize : final.pageSize
+        const total = typeof p.total === 'number' ? p.total : (Array.isArray(obj.list) ? obj.list.length : 0)
+        const pagination = { page, pageSize, total, totalPages: typeof p.totalPages === 'number' ? p.totalPages : Math.ceil(total / pageSize) }
+        return { success: true, data: { list: obj.list as Role[], pagination } }
       }
       // case 2: { items: Role[], total?: number }
       if (Array.isArray(obj.items)) {
@@ -88,8 +95,8 @@ export const deleteRole = (id: number): Promise<ApiResponse<void>> => {
 }
 
 export const getPermissionTree = (): Promise<ApiResponse<Permission[]>> => {
-  return request.get(RBAC_API_PATHS.permissionList).then((res: ApiResponse<Array<{ id: number; name: string; description?: string }>>) => {
-    const list = res.data.map(p => ({ id: p.id, name: p.name, description: p.description } as Permission))
+  return request.get(RBAC_API_PATHS.permissionList).then((res: ApiResponse<Array<{ id: number; name: string; description?: string; code?: string; parentId?: number }>>) => {
+    const list = res.data.map(p => ({ id: p.id, name: p.name, description: p.description, code: p.code, parentId: p.parentId } as Permission))
     return { success: true, data: list }
   })
 }

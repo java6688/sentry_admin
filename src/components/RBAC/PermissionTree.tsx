@@ -19,8 +19,8 @@ function toTreeData(perms: Permission[]): DataNode[] {
   const build = (parentId?: number): DataNode[] => {
     const children = byParent.get(parentId) || []
     return children.map(c => ({
-      key: c.code,
-      title: `${c.name} (${c.code})`,
+      key: String(c.code ?? c.id),
+      title: c.code ? `${c.name} (${c.code})` : c.name,
       children: build(c.id),
     }))
   }
