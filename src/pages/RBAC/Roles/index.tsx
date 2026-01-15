@@ -23,7 +23,6 @@ export default function Roles() {
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Role | null>(null)
   const [permModal, setPermModal] = useState<{ open: boolean; role: Role | null }>({ open: false, role: null })
-  const [permId, setPermId] = useState<number | undefined>(undefined)
   const [permDrawer, setPermDrawer] = useState<{ open: boolean; role: Role | null }>({ open: false, role: null })
   const [permDrawerLoading, setPermDrawerLoading] = useState(false)
   const [permList, setPermList] = useState<Permission[]>([])
@@ -99,7 +98,6 @@ export default function Roles() {
 
   const onAssignPerms = (role: Role) => {
     setPermModal({ open: true, role })
-    setPermId(undefined)
   }
 
   const onViewPerms = (role: Role) => {
@@ -113,7 +111,6 @@ export default function Roles() {
 
   const onClosePerms = () => {
     setPermModal({ open: false, role: null })
-    setPermId(undefined)
   }
 
   return (
@@ -170,8 +167,6 @@ export default function Roles() {
         <AssignPermissionsModal
           open={permModal.open}
           roleId={permModal.role.id}
-          value={permId}
-          onChange={setPermId}
           onCancel={onClosePerms}
           onOk={onClosePerms}
         />
