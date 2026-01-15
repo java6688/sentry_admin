@@ -137,7 +137,7 @@ export default function Roles() {
         open={showForm}
         onClose={() => { setShowForm(false); setEditing(null) }}
         destroyOnHidden
-        size={480}
+        size="default"
       >
         <RoleForm
           initialValues={editing ? { name: editing.name, description: editing.description } : undefined}
@@ -150,7 +150,7 @@ export default function Roles() {
         open={permDrawer.open}
         onClose={() => setPermDrawer({ open: false, role: null })}
         destroyOnHidden
-        width={640}
+        size="large"
       >
         {permDrawerLoading ? (
           <Spin />
