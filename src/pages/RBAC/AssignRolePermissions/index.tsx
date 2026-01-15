@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Card, Select, Transfer, Space, Button, message } from 'antd'
 import type { TransferItem } from 'antd/es/transfer'
-import { getRoleList, getAllPermissionsWithAssigned, setRolePermissions, type Role } from '../../../api/rbac'
+import { getRoleList, getAllPermissionsWithAssigned, setRolePermissions, type Role, roleAssignPermission, roleRemovePermission } from '../../../api/rbac'
 import './index.css'
 
 export default function AssignRolePermissions() {
@@ -18,7 +18,7 @@ export default function AssignRolePermissions() {
   const loadRolePerms = (rid: number) => {
     setLoading(true)
     getAllPermissionsWithAssigned(rid).then(res => {
-      setItems(res.data.map(p => ({ key: String(p.id), title: p.name })))
+      setItems(res.data.map(p => ({ key: String(p.id), title: `${p.name}${p.description ? `（${p.description}）` : ''}` })))
       setTargetKeys(res.data.filter(p => p.assigned).map(p => String(p.id)))
     }).finally(() => setLoading(false))
   }
@@ -52,7 +52,28 @@ export default function AssignRolePermissions() {
           <Transfer
             dataSource={items}
             targetKeys={targetKeys}
-            onChange={(keys) => setTargetKeys(keys.map(String))}
+            onChange={(nextTargetKeys, direction, moveKeys) => {
+              setTargetKeys(nextTargetKeys.map(String))
+              if (!roleId || !moveKeys || moveKeys.length === 0) return
+              const ids = moveKeys.map(k => Number(k))
+              if (direction === 'right') {
+                Promise.all(ids.map(id => roleAssignPermission(roleId, id)))
+                  .then(() => message.success('已分配所选权限'))
+                  .catch(() => {
+                    message.error('分配权限失败，请重试')
+                    // 回滚状态
+                    setTargetKeys(prev => prev.filter(k => !moveKeys.includes(k)))
+                  })
+              } else if (direction === 'left') {
+                Promise.all(ids.map(id => roleRemovePermission(roleId, id)))
+                  .then(() => message.success('已移除所选权限'))
+                  .catch(() => {
+                    message.error('移除权限失败，请重试')
+                    // 回滚状态
+                    setTargetKeys(prev => Array.from(new Set([...prev, ...moveKeys.map(String)])))
+                  })
+              }
+            }}
             render={item => item.title ?? ''}
             styles={{ list: { width: 320, height: 380 } }}
           />

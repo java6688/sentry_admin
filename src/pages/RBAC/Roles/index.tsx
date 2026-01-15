@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Table, Button, Space, Drawer, Modal, message } from 'antd'
+import { Table, Button, Space, Drawer, Modal, message, Tag, Spin } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import {
   getRoleList,
@@ -7,6 +7,8 @@ import {
   updateRole,
   deleteRole,
   type Role,
+  type Permission,
+  getRolePermissions,
 } from '../../../api/rbac'
 import RoleForm, { type RoleFormValues } from '../../../components/RBAC/RoleForm'
 import AssignPermissionsModal from '../../../components/RBAC/AssignPermissionsModal'
@@ -22,6 +24,9 @@ export default function Roles() {
   const [editing, setEditing] = useState<Role | null>(null)
   const [permModal, setPermModal] = useState<{ open: boolean; role: Role | null }>({ open: false, role: null })
   const [permId, setPermId] = useState<number | undefined>(undefined)
+  const [permDrawer, setPermDrawer] = useState<{ open: boolean; role: Role | null }>({ open: false, role: null })
+  const [permDrawerLoading, setPermDrawerLoading] = useState(false)
+  const [permList, setPermList] = useState<Permission[]>([])
 
   const loadRoleList = useCallback((p = page, ps = pageSize) => {
     getRoleList({ page: p, pageSize: ps })
@@ -41,6 +46,12 @@ export default function Roles() {
   const columns: ColumnsType<Role> = [
     { title: '名称', dataIndex: 'name' },
     { title: '描述', dataIndex: 'description' },
+    {
+      title: '权限',
+      render: (_, record) => (
+        <Button type="link" onClick={() => onViewPerms(record)}>查看权限</Button>
+      )
+    },
     {
       title: '操作',
       render: (_, record) => (
@@ -91,6 +102,15 @@ export default function Roles() {
     setPermId(undefined)
   }
 
+  const onViewPerms = (role: Role) => {
+    setPermDrawer({ open: true, role })
+    setPermDrawerLoading(true)
+    setPermList([])
+    getRolePermissions(role.id)
+      .then(res => setPermList(res.data))
+      .finally(() => setPermDrawerLoading(false))
+  }
+
   const onClosePerms = () => {
     setPermModal({ open: false, role: null })
     setPermId(undefined)
@@ -126,6 +146,25 @@ export default function Roles() {
           onSubmit={onSubmitForm}
           onCancel={() => { setShowForm(false); setEditing(null) }}
         />
+      </Drawer>
+      <Drawer
+        title={permDrawer.role ? `【${permDrawer.role.name}】的权限` : '角色权限'}
+        open={permDrawer.open}
+        onClose={() => setPermDrawer({ open: false, role: null })}
+        destroyOnHidden
+        width={640}
+      >
+        {permDrawerLoading ? (
+          <Spin />
+        ) : (
+          <Space size={[8, 8]} wrap>
+            {permList.length === 0 ? (
+              <span>暂无权限</span>
+            ) : (
+              permList.map(p => <Tag key={p.id}>{`${p.name}${p.description ? `（${p.description}）` : ''}`}</Tag>)
+            )}
+          </Space>
+        )}
       </Drawer>
       {permModal.role && (
         <AssignPermissionsModal

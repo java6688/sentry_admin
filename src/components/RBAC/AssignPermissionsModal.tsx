@@ -1,29 +1,26 @@
-import { Modal, Select, Space, Button, message } from 'antd'
+import { Modal, Space, message, Input, Checkbox, List } from 'antd'
 import { useEffect, useState } from 'react'
 import { getAllPermissionsWithAssigned, roleAssignPermission, roleRemovePermission } from '../../api/rbac'
 
 interface Props {
   open: boolean
   roleId: number
-  value?: number
-  onChange?: (id: number | undefined) => void
   onCancel: () => void
   onOk: () => void
 }
 
-export default function AssignPermissionsModal({ open, roleId, value, onChange, onCancel, onOk }: Props) {
+export default function AssignPermissionsModal({ open, roleId, onCancel, onOk }: Props) {
   const [options, setOptions] = useState<Array<{ value: number; label: string; assigned: boolean }>>([])
-  const [selected, setSelected] = useState<number | undefined>(value)
+  const [filter, setFilter] = useState('')
+  const [itemLoading, setItemLoading] = useState<Record<number, boolean>>({})
 
   useEffect(() => {
     if (!roleId) return
     getAllPermissionsWithAssigned(roleId).then(res => {
-      const opts = res.data.map(p => ({ value: p.id, label: p.name, assigned: p.assigned }))
+      const opts = res.data.map(p => ({ value: p.id, label: `${p.name}${p.description ? `（${p.description}）` : ''}` , assigned: p.assigned }))
       setOptions(opts)
-      setSelected(undefined)
-      onChange?.(undefined)
     })
-  }, [roleId, open, onChange])
+  }, [roleId, open])
 
   return (
     <Modal
@@ -37,36 +34,50 @@ export default function AssignPermissionsModal({ open, roleId, value, onChange, 
       width={640}
     >
       <Space direction="vertical" size={12} style={{ width: '100%' }}>
-        <Select
+        <Input
+          placeholder="搜索权限（支持 name/description）"
+          value={filter}
+          onChange={e => setFilter(e.target.value)}
+          allowClear
           style={{ width: 360 }}
-          placeholder="选择一个权限进行分配或移除"
-          options={options.map(o => ({ value: o.value, label: o.label }))}
-          value={selected}
-          onChange={(v) => { setSelected(v); onChange?.(v) }}
-          showSearch
         />
-        <Space>
-          <Button
-            type="primary"
-            disabled={!selected}
-            onClick={() => {
-              if (!selected) return
-              roleAssignPermission(roleId, selected).then(() => message.success('已分配'))
-            }}
-          >
-            分配
-          </Button>
-          <Button
-            danger
-            disabled={!selected}
-            onClick={() => {
-              if (!selected) return
-              roleRemovePermission(roleId, selected).then(() => message.success('已移除'))
-            }}
-          >
-            移除
-          </Button>
-        </Space>
+        <List
+          bordered
+          style={{ maxHeight: 420, overflow: 'auto' }}
+          dataSource={options.filter(o => o.label.includes(filter))}
+          renderItem={(item) => (
+            <List.Item>
+              <Checkbox
+                checked={item.assigned}
+                disabled={!!itemLoading[item.value]}
+                onChange={async (e) => {
+                  const checked = e.target.checked
+                  setItemLoading(prev => ({ ...prev, [item.value]: true }))
+                  const prevAssigned = item.assigned
+                  // 先更新本地状态以提升响应速度
+                  setOptions(prev => prev.map(o => o.value === item.value ? { ...o, assigned: checked } : o))
+                  try {
+                    if (checked) {
+                      await roleAssignPermission(roleId, item.value)
+                      message.success('已分配')
+                    } else {
+                      await roleRemovePermission(roleId, item.value)
+                      message.success('已移除')
+                    }
+                  } catch {
+                    // 回滚
+                    setOptions(prev => prev.map(o => o.value === item.value ? { ...o, assigned: prevAssigned } : o))
+                    message.error('操作失败，请重试')
+                  } finally {
+                    setItemLoading(prev => ({ ...prev, [item.value]: false }))
+                  }
+                }}
+              >
+                {item.label}
+              </Checkbox>
+            </List.Item>
+          )}
+        />
       </Space>
     </Modal>
   )
