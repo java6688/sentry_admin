@@ -52,7 +52,9 @@ export interface GetRoleListParams {
 export const getRoleList = (params: GetRoleListParams = {}): Promise<PaginationResponse<Role>> => {
   const final = { page: 1, pageSize: 10, ...params }
   return request.get(RBAC_API_PATHS.roleList, { params: final }).then((res: unknown) => {
-    const raw = (res as any)?.data ?? res
+    const raw = (typeof res === 'object' && res !== null && 'data' in (res as Record<string, unknown>))
+      ? (res as { data: unknown }).data
+      : res
     // case 1: { list: Role[], pagination: {...} }
     if (typeof raw === 'object' && raw !== null) {
       const obj = raw as { list?: unknown; pagination?: unknown; items?: unknown; total?: number }
@@ -95,14 +97,14 @@ export const deleteRole = (id: number): Promise<ApiResponse<void>> => {
 }
 
 export const getPermissionTree = (): Promise<ApiResponse<Permission[]>> => {
-  return request.get(RBAC_API_PATHS.permissionList).then((res: ApiResponse<Array<{ id: number; name: string; description?: string; code?: string; parentId?: number }>>) => {
+  return request.get<ApiResponse<Array<{ id: number; name: string; description?: string; code?: string; parentId?: number }>>>(RBAC_API_PATHS.permissionList).then((res) => {
     const list = res.data.map(p => ({ id: p.id, name: p.name, description: p.description, code: p.code, parentId: p.parentId } as Permission))
     return { success: true, data: list }
   })
 }
 
 export const createPermission = (perm: { name: string; description?: string }): Promise<ApiResponse<Permission>> => {
-  return request.post(RBAC_API_PATHS.permissionCreate, perm).then((res: ApiResponse<{ id: number; name: string; description?: string }>) => {
+  return request.post<ApiResponse<{ id: number; name: string; description?: string }>>(RBAC_API_PATHS.permissionCreate, perm).then((res) => {
     const p = res.data
     const created: Permission = { id: p.id, name: p.name, description: p.description }
     return { success: true, data: created }
@@ -110,7 +112,7 @@ export const createPermission = (perm: { name: string; description?: string }): 
 }
 
 export const updatePermission = (id: number, patch: Partial<{ name: string; description?: string }>): Promise<ApiResponse<Permission>> => {
-  return request.patch(`${RBAC_API_PATHS.permissionUpdate}/${id}`, patch).then((res: ApiResponse<{ id: number; name: string; description?: string }>) => {
+  return request.patch<ApiResponse<{ id: number; name: string; description?: string }>>(`${RBAC_API_PATHS.permissionUpdate}/${id}`, patch).then((res) => {
     const p = res.data
     const updated: Permission = { id: p.id, name: p.name, description: p.description }
     return { success: true, data: updated }

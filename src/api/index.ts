@@ -102,7 +102,7 @@ export const register = (payload: { username: string; password: string }): Promi
 }
 
 // 当前用户信息
-export const me = (): Promise<ApiResponse<{ id: number; username: string; roles?: string[]; disabled?: boolean }>> => {
+export const me = (): Promise<ApiResponse<{ id: number; username: string; roles?: string[]; disabled?: boolean; permissions?: string[] }>> => {
   return request.get('/auth/me')
 }
 

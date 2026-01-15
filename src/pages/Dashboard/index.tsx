@@ -31,6 +31,7 @@ import {
   EnvironmentLabels,
 } from "../../enum";
 import { getErrorList, updateErrorStatus, type ErrorItem } from "../../api";
+import { hasPerm } from "../../utils/perm";
 import "./index.css";
 
 const { Text } = Typography;
@@ -177,26 +178,31 @@ function Dashboard() {
       dataIndex: "status",
       key: "status",
       width: 180,
-      render: (status: string, record: ErrorItem) => (
-        <Space size={4} className="status-column">
-          {getStatusTag(status)}
-          <Dropdown
-            menu={{
-              items: statusItems,
-              onClick: ({ key }) => handleStatusChange(record.id, key as ErrorStatus),
-            }}
-            trigger={["click"]}
-          >
-            <Button
-              type="text"
-              size="small"
-              icon={<DownOutlined />}
-              className="status-edit-btn"
-              style={{ padding: 0, minWidth: 0 }}
-            />
-          </Dropdown>
-        </Space>
-      ),
+      render: (status: string, record: ErrorItem) => {
+        const canEditStatus = hasPerm('error:resolve')
+        return (
+          <Space size={4} className="status-column">
+            {getStatusTag(status)}
+            {canEditStatus && (
+              <Dropdown
+                menu={{
+                  items: statusItems,
+                  onClick: ({ key }) => handleStatusChange(record.id, key as ErrorStatus),
+                }}
+                trigger={["click"]}
+              >
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<DownOutlined />}
+                  className="status-edit-btn"
+                  style={{ padding: 0, minWidth: 0 }}
+                />
+              </Dropdown>
+            )}
+          </Space>
+        )
+      },
     },
     {
       title: "时间",

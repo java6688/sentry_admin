@@ -1,7 +1,9 @@
 import { Layout, Menu, Typography, Avatar, Dropdown, Space } from 'antd'
+import type { MenuProps } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { LogoutOutlined } from '@ant-design/icons'
 import { useUser } from '../../hooks/useUser'
+import { hasPerm } from '../../utils/perm'
 import './index.css'
 
 const { Header, Content, Footer } = Layout
@@ -69,24 +71,31 @@ export default function MainLayout({ children }: LayoutProps) {
           mode="horizontal"
           selectedKeys={[getSelectedKey()]}
           onClick={({ key }) => handleMenuClick(key)}
-          items={[
-            { key: 'home', label: '首页' },
-            { key: 'dashboard', label: '信息面板' },
-            {
-              key: 'rbac',
-              label: (
-                <span className="menu-label-with-arrow">
-                  权限管理 <span className="arrow-icon">▼</span>
-                </span>
-              ),
-              children: [
-                { key: 'rbac-roles', label: '角色管理' },
-                { key: 'rbac-permissions', label: '权限管理' },
-                { key: 'rbac-assign-perms', label: '分配权限(批量)' },
-              ],
-            },
-            { key: 'user', label: '用户管理' },
-          ]}
+          items={(() => {
+            const notNull = <T,>(x: T | null): x is T => x !== null
+            const rbacChildren = [
+              hasPerm('rbac:role:read') ? { key: 'rbac-roles', label: '角色管理' } : null,
+              hasPerm('rbac:perm:read') ? { key: 'rbac-permissions', label: '权限管理' } : null,
+              hasPerm('rbac:role:setPermissions') ? { key: 'rbac-assign-perms', label: '分配权限(批量)' } : null,
+            ].filter(notNull)
+            const items: MenuProps['items'] = [
+              { key: 'home', label: '首页' },
+              hasPerm('error:read') ? { key: 'dashboard', label: '信息面板' } : null,
+              rbacChildren.length > 0
+                ? {
+                    key: 'rbac',
+                    label: (
+                      <span className="menu-label-with-arrow">
+                        权限管理 <span className="arrow-icon">▼</span>
+                      </span>
+                    ),
+                    children: rbacChildren,
+                  }
+                : null,
+              hasPerm('user:read') ? { key: 'user', label: '用户管理' } : null,
+            ].filter(notNull)
+            return items
+          })()}
         />
         {/* 用户信息区域 */}
         {user && (

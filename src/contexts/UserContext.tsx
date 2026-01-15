@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState, type ReactNode } from 'react';
+import React, { createContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Modal, message } from 'antd';
 import { logout as logoutApi, me } from '../api';
@@ -47,12 +47,15 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const initialUser = getInitialUser();
   const [user, setUser] = useState<UserInfo | null>(initialUser);
   const [isLoggedIn, setIsLoggedIn] = useState(initialUser !== null);
+  const hasFetchedRef = useRef(false)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) return
+    if (hasFetchedRef.current) return
+    hasFetchedRef.current = true
     me().then(res => {
-      const info = { id: res.data.id, username: res.data.username, roles: res.data.roles, disabled: res.data.disabled }
+      const info = { id: res.data.id, username: res.data.username, roles: res.data.roles, disabled: res.data.disabled, permissions: res.data.permissions }
       setUser(info as UserInfo)
       setIsLoggedIn(true)
       localStorage.setItem('user', JSON.stringify(info))
@@ -63,7 +66,7 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       localStorage.removeItem('token')
       navigate('/login')
     })
-  }, [navigate])
+  }, [navigate, initialUser])
 
   // 登录方法
   const login = (userInfo: UserInfo, token: string) => {
@@ -71,6 +74,13 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     setIsLoggedIn(true);
     localStorage.setItem('user', JSON.stringify(userInfo));
     localStorage.setItem('token', token);
+    me().then(res => {
+      const info = { id: res.data.id, username: res.data.username, roles: res.data.roles, disabled: res.data.disabled, permissions: res.data.permissions }
+      setUser(info as UserInfo)
+      localStorage.setItem('user', JSON.stringify(info))
+    }).catch(() => {
+      message.warning('刷新用户权限失败，可稍后重试')
+    })
     // 登录成功后导航到首页
     navigate('/home');
   };

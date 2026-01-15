@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Card, Select, Transfer, Space, Button, message } from 'antd'
+import { Card, Select, Space, Button, message } from 'antd'
 import type { TransferItem } from 'antd/es/transfer'
 import { getRoleList, getAllPermissionsWithAssigned, setRolePermissions, type Role, roleAssignPermission, roleRemovePermission } from '../../../api/rbac'
+import TransferSelector from '../../../components/RBAC/TransferSelector'
 import './index.css'
 
 export default function AssignRolePermissions() {
@@ -33,7 +34,7 @@ export default function AssignRolePermissions() {
 
   return (
     <div className="assign-role-perms-page">
-      <Space direction="vertical" size={16} style={{ width: '100%' }}>
+      <Space orientation="vertical" size={16} style={{ width: '100%' }}>
         <Card>
           <Space size={12}>
             <span>选择角色：</span>
@@ -49,8 +50,8 @@ export default function AssignRolePermissions() {
           </Space>
         </Card>
         <Card loading={loading} title="分配权限">
-          <Transfer
-            dataSource={items}
+          <TransferSelector
+            data={items}
             targetKeys={targetKeys}
             onChange={(nextTargetKeys, direction, moveKeys) => {
               setTargetKeys(nextTargetKeys.map(String))
@@ -61,7 +62,6 @@ export default function AssignRolePermissions() {
                   .then(() => message.success('已分配所选权限'))
                   .catch(() => {
                     message.error('分配权限失败，请重试')
-                    // 回滚状态
                     setTargetKeys(prev => prev.filter(k => !moveKeys.includes(k)))
                   })
               } else if (direction === 'left') {
@@ -69,13 +69,12 @@ export default function AssignRolePermissions() {
                   .then(() => message.success('已移除所选权限'))
                   .catch(() => {
                     message.error('移除权限失败，请重试')
-                    // 回滚状态
                     setTargetKeys(prev => Array.from(new Set([...prev, ...moveKeys.map(String)])))
                   })
               }
             }}
-            render={item => item.title ?? ''}
-            styles={{ list: { width: 320, height: 380 } }}
+            listHeight={450}
+            fluid
           />
         </Card>
       </Space>

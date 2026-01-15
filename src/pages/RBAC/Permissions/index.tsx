@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Table, Button, Space, Modal, Form, Input, message } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { getPermissionTree, createPermission, updatePermission, deletePermission, type Permission } from '../../../api/rbac'
+import { hasPerm } from '../../../utils/perm'
 import './index.css'
 
 type PermissionFormValues = {
@@ -34,8 +35,8 @@ export default function Permissions() {
       title: '操作',
       render: (_, record) => (
         <Space>
-          <Button type="link" onClick={() => onEdit(record)}>编辑</Button>
-          <Button type="link" danger onClick={() => onDelete(record)}>删除</Button>
+          {hasPerm('rbac:perm:update') && <Button type="link" onClick={() => onEdit(record)}>编辑</Button>}
+          {hasPerm('rbac:perm:delete') && <Button type="link" danger onClick={() => onDelete(record)}>删除</Button>}
         </Space>
       )
     }
@@ -90,7 +91,7 @@ export default function Permissions() {
   return (
     <div className="permissions-page">
       <div className="toolbar">
-        <Button type="primary" onClick={onCreate}>新建权限</Button>
+        {hasPerm('rbac:perm:create') && <Button type="primary" onClick={onCreate}>新建权限</Button>}
       </div>
       <Table
         rowKey="id"

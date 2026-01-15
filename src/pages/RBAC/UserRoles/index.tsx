@@ -9,6 +9,7 @@ import {
 } from '../../../api/rbac'
 import { enableUser, disableUser, register } from '../../../api'
 import AssignRolesModal from '../../../components/RBAC/AssignRolesModal'
+import { hasPerm } from '../../../utils/perm'
 import './index.css'
 
 export default function UserRoles() {
@@ -49,18 +50,22 @@ export default function UserRoles() {
     {
       title: '状态',
       render: (_, record) => (
-        <Switch
-          checkedChildren="启用"
-          unCheckedChildren="禁用"
-          checked={!record.disabled}
-          onChange={(checked) => {
-            const action = checked ? enableUser(record.id) : disableUser(record.id)
-            action.then(() => {
-              message.success(checked ? '用户已启用' : '用户已禁用')
-              loadUserList(page, pageSize, username)
-            })
-          }}
-        />
+        hasPerm('user:disable') ? (
+          <Switch
+            checkedChildren="启用"
+            unCheckedChildren="禁用"
+            checked={!record.disabled}
+            onChange={(checked) => {
+              const action = checked ? enableUser(record.id) : disableUser(record.id)
+              action.then(() => {
+                message.success(checked ? '用户已启用' : '用户已禁用')
+                loadUserList(page, pageSize, username)
+              })
+            }}
+          />
+        ) : (
+          <span>{record.disabled ? '已禁用' : '已启用'}</span>
+        )
       )
     },
     {
@@ -78,7 +83,7 @@ export default function UserRoles() {
       title: '操作',
       render: (_, record) => (
         <Space>
-          <Button type="link" onClick={() => onAssign(record)}>分配/移除角色</Button>
+          {hasPerm('user:assignRoles') && <Button type="link" onClick={() => onAssign(record)}>分配/移除角色</Button>}
         </Space>
       )
     }
@@ -112,7 +117,7 @@ export default function UserRoles() {
             onSearch={(v) => { setUsername(v); setLoading(true); loadUserList(1, pageSize, v) }}
             style={{ width: 240 }}
           />
-          <Button type="primary" onClick={() => { form.resetFields(); setShowCreate(true) }}>新增用户</Button>
+          {hasPerm('user:create') && <Button type="primary" onClick={() => { form.resetFields(); setShowCreate(true) }}>新增用户</Button>}
         </Space>
       </div>
       <Table

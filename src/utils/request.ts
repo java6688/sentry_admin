@@ -76,9 +76,9 @@ request.interceptors.response.use(
 )
 
 export type Http = {
-  get<T = any>(url: string, config?: unknown): Promise<T>
-  post<T = any>(url: string, data?: unknown, config?: unknown): Promise<T>
-  patch<T = any>(url: string, data?: unknown, config?: unknown): Promise<T>
-  delete<T = any>(url: string, config?: unknown): Promise<T>
+  get<T = unknown>(url: string, config?: unknown): Promise<T>
+  post<T = unknown>(url: string, data?: unknown, config?: unknown): Promise<T>
+  patch<T = unknown>(url: string, data?: unknown, config?: unknown): Promise<T>
+  delete<T = unknown>(url: string, config?: unknown): Promise<T>
 }
 export default request as unknown as Http

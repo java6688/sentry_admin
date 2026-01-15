@@ -1,0 +1,38 @@
+.rbac-transfer-fluid .ant-transfer-list {
+  width: var(--rbac-transfer-section-width, 600px);
+  height: var(--rbac-transfer-section-height, 450px);
+  display: flex;
+  flex-direction: column;
+}
+.rbac-transfer-fluid .ant-transfer-section {
+  width: var(--rbac-transfer-section-width, 600px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.rbac-transfer-fluid .ant-transfer-list-header {
+  flex: 0 0 auto;
+}
+.rbac-transfer-fluid .ant-transfer-list-body {
+  flex: 1 1 auto;
+  height: auto;
+}
+.rbac-transfer-fluid .ant-transfer-list-content {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.rbac-transfer-item {
+  display: inline-block;
+  max-width: 720px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.modal-fit .ant-modal {
+  max-width: none;
+}
+.modal-fit .ant-modal-content {
+  width: fit-content;
+}

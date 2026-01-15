@@ -5,6 +5,7 @@ import { ArrowLeftOutlined, ClockCircleOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { ErrorCategory, ErrorCategoryLabels, ErrorStatus, ErrorStatusLabels, ProjectLabels, EnvironmentLabels } from '../../enum'
 import { getErrorDetail, updateErrorStatus, type ErrorItem } from '../../api'
+import { hasPerm } from '../../utils/perm'
 import './index.css'
 
 const { Title, Text } = Typography
@@ -162,27 +163,36 @@ function ErrorDetail() {
             {getCategoryTag(errorDetail.category)}
           </Descriptions.Item>
           <Descriptions.Item label="错误状态">
-            <Space>
-              <Select
-                value={selectedStatus}
-                onChange={setSelectedStatus}
-                style={{ width: 120 }}
-              >
-                {Object.entries(ErrorStatusLabels).map(([status, label]) => (
-                  <Select.Option key={status} value={status}>
-                    {label}
-                  </Select.Option>
-                ))}
-              </Select>
-              <Button
-                type="primary"
-                size="small"
-                onClick={handleSaveStatus}
-                loading={statusUpdating}
-              >
-                保存
-              </Button>
-            </Space>
+            {hasPerm('error:resolve') ? (
+              <Space>
+                <Select
+                  value={selectedStatus}
+                  onChange={setSelectedStatus}
+                  style={{ width: 120 }}
+                >
+                  {Object.entries(ErrorStatusLabels).map(([status, label]) => (
+                    <Select.Option key={status} value={status}>
+                      {label}
+                    </Select.Option>
+                  ))}
+                </Select>
+                <Button
+                  type="primary"
+                  size="small"
+                  onClick={handleSaveStatus}
+                  loading={statusUpdating}
+                >
+                  保存
+                </Button>
+              </Space>
+            ) : (
+              <Tag color={
+                errorDetail.status === ErrorStatus.RESOLVED ? 'success' :
+                errorDetail.status === ErrorStatus.IN_PROGRESS ? 'processing' : 'default'
+              }>
+                {ErrorStatusLabels[errorDetail.status]}
+              </Tag>
+            )}
           </Descriptions.Item>
           <Descriptions.Item label="所属项目">
             <Tag color="blue">{ProjectLabels[errorDetail.project]}</Tag>

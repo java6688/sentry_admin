@@ -1,7 +1,8 @@
-import { Modal, Transfer } from 'antd'
+import { Modal } from 'antd'
 import { useEffect, useState } from 'react'
 import type { TransferItem } from 'antd/es/transfer'
 import { getAllUserRolesWithAssigned } from '../../api/rbac'
+import TransferSelector from './TransferSelector'
 
 interface Props {
   open: boolean
@@ -33,14 +34,14 @@ export default function AssignRolesModal({ open, userId, value, onChange, onCanc
       okText="保存"
       cancelText="取消"
       destroyOnHidden
-      width={640}
+      wrapClassName="modal-fit"
     >
-      <Transfer
-        dataSource={items}
+      <TransferSelector
+        data={items}
         targetKeys={value.map(id => String(id))}
-        onChange={(targetKeys) => onChange(targetKeys.map(k => Number(k)))}
-        render={item => item.title ?? ''}
-        styles={{ list: { width: 280, height: 320 } }}
+        onChange={(nextKeys) => onChange(nextKeys.map(k => Number(k)))}
+        listHeight={450}
+        fluid
       />
     </Modal>
   )

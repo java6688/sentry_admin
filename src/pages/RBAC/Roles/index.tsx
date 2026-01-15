@@ -12,6 +12,7 @@ import {
 } from '../../../api/rbac'
 import RoleForm, { type RoleFormValues } from '../../../components/RBAC/RoleForm'
 import AssignPermissionsModal from '../../../components/RBAC/AssignPermissionsModal'
+import { hasPerm } from '../../../utils/perm'
 import './index.css'
 
 export default function Roles() {
@@ -55,10 +56,10 @@ export default function Roles() {
       title: '操作',
       render: (_, record) => (
         <Space>
-          <Button type="link" onClick={() => onEdit(record)}>编辑</Button>
-          <Button type="link" onClick={() => onAssignPerms(record)}>分配权限</Button>
-          <Button type="link" onClick={() => window.location.href = '/rbac/assign-permissions'}>批量分配</Button>
-          <Button type="link" danger onClick={() => onDelete(record)}>删除</Button>
+          {hasPerm('rbac:role:update') && <Button type="link" onClick={() => onEdit(record)}>编辑</Button>}
+          {hasPerm('rbac:role:setPermissions') && <Button type="link" onClick={() => onAssignPerms(record)}>分配权限</Button>}
+          {hasPerm('rbac:role:setPermissions') && <Button type="link" onClick={() => window.location.href = '/rbac/assign-permissions'}>批量分配</Button>}
+          {hasPerm('rbac:role:delete') && <Button type="link" danger onClick={() => onDelete(record)}>删除</Button>}
         </Space>
       )
     }
@@ -116,7 +117,7 @@ export default function Roles() {
   return (
     <div className="roles-page">
       <div className="toolbar">
-        <Button type="primary" onClick={onCreate}>新建角色</Button>
+        {hasPerm('rbac:role:create') && <Button type="primary" onClick={onCreate}>新建角色</Button>}
       </div>
       <Table
         rowKey="id"
