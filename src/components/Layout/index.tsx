@@ -20,6 +20,7 @@ export default function MainLayout({ children }: LayoutProps) {
 
   const getSelectedKey = () => {
     if (location.pathname === '/dashboard' || location.pathname.startsWith('/error/')) return 'dashboard'
+    if (location.pathname.startsWith('/bug-reports')) return 'bug-reports'
     if (location.pathname.startsWith('/rbac/user-roles')) return 'user'
     if (location.pathname.startsWith('/rbac/assign-permissions')) return 'rbac-assign-perms'
     if (location.pathname.startsWith('/rbac/permissions')) return 'rbac-permissions'
@@ -31,6 +32,7 @@ export default function MainLayout({ children }: LayoutProps) {
   const handleMenuClick = (key: string) => {
     if (key === 'home') navigate('/home')
     if (key === 'dashboard') navigate('/dashboard')
+    if (key === 'bug-reports') navigate('/bug-reports')
     if (key === 'rbac-roles') navigate('/rbac/roles')
     if (key === 'rbac-permissions') navigate('/rbac/permissions')
     if (key === 'rbac-assign-perms') navigate('/rbac/assign-permissions')
@@ -81,6 +83,7 @@ export default function MainLayout({ children }: LayoutProps) {
             const items: MenuProps['items'] = [
               { key: 'home', label: '首页' },
               hasPerm('error:read') ? { key: 'dashboard', label: '信息面板' } : null,
+              { key: 'bug-reports', label: '问题管理' },
               rbacChildren.length > 0
                 ? {
                     key: 'rbac',

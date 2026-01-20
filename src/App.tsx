@@ -8,6 +8,8 @@ import Permissions from "./pages/RBAC/Permissions/index";
 import UserRoles from "./pages/RBAC/UserRoles/index";
 import AssignRolePermissions from "./pages/RBAC/AssignRolePermissions/index";
 import Profile from "./pages/Profile/index";
+import BugReportList from "./pages/bug-report/index";
+import BugReportDetail from "./pages/bug-report/Detail";
 import MainLayout from "./components/Layout/index";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import RBACRoute from "./components/RBAC/RBACRoute";
@@ -41,6 +43,8 @@ function App() {
                 <Route path="/rbac/assign-permissions" element={<MainLayout><AssignRolePermissions /></MainLayout>} />
               </Route>
               <Route path="/profile" element={<MainLayout><Profile /></MainLayout>} />
+              <Route path="/bug-reports" element={<MainLayout><BugReportList /></MainLayout>} />
+              <Route path="/bug-reports/:id" element={<MainLayout><BugReportDetail /></MainLayout>} />
               <Route path="/rbac" element={<Navigate to="/rbac/roles" replace />} />
             </Route>
             <Route path="/" element={<Navigate to="/login" replace />} />

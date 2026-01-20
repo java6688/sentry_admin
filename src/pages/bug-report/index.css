@@ -1,0 +1,10 @@
+.bug-report-page {
+  padding: 24px;
+}
+
+.bug-report-page .toolbar {
+  margin-bottom: 16px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
